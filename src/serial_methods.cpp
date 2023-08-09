@@ -7,11 +7,11 @@ void readSerial(std::string& buffer, Blackbody& blackbody)
 	char c = Serial.read();
 	if (c == '\n') // if end of line, parse the command
 	{
-    std::string s(buffer);
-    parseCommand(s, blackbody);
-    buffer = "";
+		std::string s(buffer);
+		parseCommand(s, blackbody);
+		buffer = "";
 	}
-  else // otherwise, buffer it
+  	else // otherwise, buffer it
 	{
 		buffer += c;
 	}
@@ -30,7 +30,7 @@ void parseCommand(std::string s, Blackbody& blackbody)
 	{
 		blackbody.status = std::stoi(value);
 	}
-  else if(response == "DA")
+  	else if(response == "DA")
 	{
 		blackbody.setPoint = std::stof(value);
 	}
