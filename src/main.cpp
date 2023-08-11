@@ -47,9 +47,8 @@ void setup()
 
 	//GUI.drawBootScreen();
 
-	//GUI.initDisplayGraphics();
-	//GUI.initTouchControl();
-	GUI.drawKeypad();
+	GUI.initDisplayGraphics();
+	GUI.initTouchControl();
 
 	Serial.begin(19200);
 	Serial5.begin(115200);
@@ -57,8 +56,6 @@ void setup()
 
 void loop()
 {
-	prevStatus = GUI.blackbody.status;
-
 	// check for response from blackbody SCC
 	if (Serial.available())		// changed from Serial5 to Serial 
 								// to test with other screen.
@@ -80,39 +77,79 @@ void loop()
 	// read touch data from controller
 	uint16_t x, y, z1, z2;  // z1 ~= pressure
 	GUI.touchController.read_touch(&y, &x, &z1, &z2);
-	//AG Serial.print("Touch point: (");
-	 //Serial.print(x); Serial.print(", ");
-	 //Serial.print(y); Serial.print(", ");
-	 //Serial.print(z1); Serial.print(" / ");
-	 //Serial.print(z2); Serial.println(")");
+	Serial.print("Touch point: ("); //AG
+	 Serial.print(x); Serial.print(", ");
+	 Serial.print(y); Serial.print(", ");
+	 Serial.print(z1); Serial.print(" / ");
+	 Serial.print(z2); Serial.println(")");
 	//AG
 
 	prevButtonState = buttonState;
+	prevStatus = GUI.blackbody.status;
 
-	// convert from touch cooridnates to button presses
-	if (z1 > 3)		// ignore weak presses 
-					// (strong press reads about 200-500)
+	switch(GUI.currPage)
 	{
-		buttonState = GUI.parseTouch(x, y);
-	}
-	else { buttonState = nonePressed; }
+	/***************************************************************************************
+											Home Page
+	***************************************************************************************/
+	case homePage:
+		if (z1 > 3)		// ignore weak presses 
+						// (strong press reads about 200-500)
+		{
+			buttonState = GUI.parseHomePageTouch(x, y);
+		}
+		else { buttonState = nonePressed; }
 
-	GUI.updateState(buttonState, prevButtonState);
+		GUI.updateHomePageState(buttonState, prevButtonState);
 
-	// unlock setpoint field if you press
-	// within it
-	if(GUI.locked && prevButtonState == unlockRegionPressed)
-	{
-		GUI.drawUnlocked();
-		GUI.locked = false;
-	}
+		if (GUI.currPage == configPage) 
+		{
+			break;
+		}
 
-	if(GUI.blackbody.status != prevStatus)
-	{
-		GUI.drawStatus(GUI.blackbody.status);
-	}
+		// unlock setpoint field if you press
+		// within it
+		if(GUI.locked && prevButtonState == unlockRegionPressed)
+		{
+			GUI.drawUnlocked();
+			GUI.locked = false;
+		}
 
-	// finally, update sourcePlateTemp and setPoint on screen
-	GUI.drawSetPoint(GUI.targetPoint, GUI.targetPointColor, TFT_WHITE, 310, 125);
-	GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, TFT_BLACK, TFT_WHITE, 10 + GUI.tft.textWidth("111.1", 7), 50);
+		if(GUI.blackbody.status != prevStatus)
+		{
+			GUI.drawStatus(GUI.blackbody.status);
+		}
+
+		// finally, update sourcePlateTemp and setPoint on screen
+		GUI.drawSetPoint(GUI.targetPoint, GUI.targetPointColor, TFT_WHITE, 310, 125);
+		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, TFT_BLACK, TFT_WHITE, 
+						 10 + GUI.tft.textWidth("111.1", 7), 50);
+		break;
+	
+	/***************************************************************************************
+			                     		   	Config Page
+	***************************************************************************************/
+	case configPage:
+		if (z1 > 3)		// ignore weak presses 
+						// (strong press reads about 200-500)
+		{
+			buttonState = GUI.parseConfigPageTouch(x, y);
+		}
+		else { buttonState = nonePressed; }
+
+		GUI.updateConfigPageState(buttonState, prevButtonState);
+
+		if (GUI.currPage == homePage) 
+		{
+			break;
+		}
+		break;
+	
+	/***************************************************************************************
+			                        		Error Page
+	***************************************************************************************/
+	case errorPage:
+
+		break;
+	}	
 }

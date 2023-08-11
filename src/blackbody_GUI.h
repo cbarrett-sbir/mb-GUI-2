@@ -5,33 +5,30 @@
 #include <Adafruit_TSC2007.h>	// touch controller
 
 #include "blackbody.h"
+#include "ip_address.h"
 
 #include <limits.h>
 
-// represents tje different signals that can be recieved from the screen
+// represents the different signals that can be recieved from the screen
 // e.g. currState = incrPressed when the increment button is pressed
-enum ButtonState {nonePressed, incrPressed, decrPressed, setpointNumberPressed, unlockRegionPressed};
-enum Page {homePage, configPage, errorPage};
+enum ButtonState {nonePressed, incrPressed, decrPressed, setpointNumberPressed, unlockRegionPressed, configPressed, ipModePressed, addressPressed, readyWindowPressed, backPressed};
+enum Page {homePage, configPage, errorPage, addressAdjustPage};
 
 class Blackbody_GUI
 {
   public:
-  // display
-  TFT_eSPI tft = TFT_eSPI();
-
+  TFT_eSPI tft = TFT_eSPI();  // display
   Adafruit_TSC2007 touchController;
   Blackbody blackbody;
-
-  // tracks the target setpoint 
-  // (number displayed when setpoint region is unlocked and being adjusted)
-  float targetPoint = 0;
+  float targetPoint = 0;      // (number displayed when setpoint region is unlocked and being adjusted)
   unsigned targetPointColor = TFT_LIGHTGREY;
+  bool locked = true;         // controls if set-point is greyed out
+  Page currPage = homePage;   // organizes pages
 
-  // controls if set-point is greyed out
-  bool locked = true;
-
-  void updateState(ButtonState buttonState, ButtonState prevButtonState);
-  ButtonState parseTouch(const unsigned x, const unsigned y);
+  void updateHomePageState(ButtonState buttonState, ButtonState prevButtonState);
+  void updateConfigPageState(ButtonState buttonState, ButtonState prevButtonState);
+  ButtonState parseHomePageTouch(const unsigned x, const unsigned y);
+  ButtonState parseConfigPageTouch(const unsigned x, const unsigned y);
 
   void drawStatus(const unsigned status);
   void drawLocked();
@@ -42,9 +39,13 @@ class Blackbody_GUI
   void drawSetPoint(float number, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos);
   void initDisplayGraphics();
   void initTouchControl();
-  void drawKeypad();
+  void drawConfigScreen();
 
   private:
+  // config settings
+  bool ipMode = 1;  // 1 = DHCP, 0 = STATIC
+  ip_address address = ip_address(192, 168, 0, 1);
+
   // guard conditions used to implement the button hold auto-increment/decrement feature
   bool incrHeld = false;
   bool decrHeld = false;
@@ -66,12 +67,23 @@ class Blackbody_GUI
   TFT_eSprite downArrowActive = TFT_eSprite(&tft);
   TFT_eSprite downArrowInactive = TFT_eSprite(&tft);
 
+  // home page
   bool isIncrButton(const unsigned x, const unsigned y);
   bool isDecrButton(const unsigned x, const unsigned y);
   bool isSetpointNumber(const unsigned x, const unsigned y);
   bool isUnlockRegion(const unsigned x, const unsigned y);
   bool isError(const unsigned x, const unsigned y);
   bool isConfig(const unsigned x, const unsigned y);
+
+  // config page
+  bool isIPMode(const unsigned x, const unsigned y);
+  bool isAddress(const unsigned x, const unsigned y);
+  bool isReadyWindow(const unsigned x, const unsigned y);
+  bool isBackButton(const unsigned x, const unsigned y);
+
+  void drawIPMode(bool mode, const unsigned x, const unsigned y);
+  void drawAddress(const unsigned x, const unsigned y, const unsigned color);
+  void drawReadyWindow(const unsigned x, const unsigned y);
 };
 
 #endif  // BLACKBODY_GUI_H_
