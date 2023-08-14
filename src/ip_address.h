@@ -8,14 +8,10 @@ class ip_address
     public:
     ip_address(unsigned byte0, unsigned byte1, unsigned byte2, unsigned byte3);
 
-    void incrByte(const unsigned byteIndex)
-    { address[byteIndex]++; }
-    
-    void decrByte(const unsigned byteIndex)
-    { address[byteIndex]--; }
-
+    void incrByte(const unsigned byteIndex);
+    void decrByte(const unsigned byteIndex);
     const char * getAddress();
-    std::string getAddressByte(const unsigned byteIndex);
+    const char * getAddressByte(const unsigned byteIndex);
 
     private:
     unsigned address[4];

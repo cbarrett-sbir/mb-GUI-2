@@ -11,9 +11,9 @@ DATE - Started 2023/02/12
 BUGS - Very infrequently a single touchController to incr/decr will
 adjust the set-point > 1 unit.
 
-DESCRIPTION - This program operates on the simple grand 
-loop paradigm. Touch coordinates are read from the TSC2007 
-touchController controller, then translated into button presses
+DESCRIPTION - This program operates on the simple grand
+loop paradigm. Touch coordinates are read from the TSC2007
+touch controller, then translated into button presses
 through simple x/y comparison. Based on the current state
 of the screen, logic changes the appearance of the GUI in
 the switch statement.
@@ -23,9 +23,9 @@ the switch statement.
 #include "blackbody_GUI.h"
 #include "serial_methods.h"
 
-//AG
+// AG
 #define BACKLIGHT_PWM 2
-//AG
+// AG
 
 Blackbody_GUI GUI;
 
@@ -45,7 +45,7 @@ void setup()
 	GUI.tft.setSwapBytes(true); // Swap the color byte order when rendering
 	digitalWrite(BACKLIGHT_PWM, HIGH);
 
-	//GUI.drawBootScreen();
+	// GUI.drawBootScreen();
 
 	GUI.initDisplayGraphics();
 	GUI.initTouchControl();
@@ -57,17 +57,17 @@ void setup()
 void loop()
 {
 	// check for response from blackbody SCC
-	if (Serial.available())		// changed from Serial5 to Serial 
-								// to test with other screen.
-								// 6 locations in main.cpp,
-								// 1 in serial_methods -c.b
+	if (Serial.available()) // changed from Serial5 to Serial
+							// to test with other screen.
+							// 6 locations in main.cpp,
+							// 1 in serial_methods -c.b
 	{
 		readSerial(buffer, GUI.blackbody);
 	}
 
 	// every 0.5s request the source plate
 	// temperature and BB status over UART
-	if(millis() - prevTime > 500)
+	if (millis() - prevTime > 500)
 	{
 		prevTime = millis();
 		Serial.println("M2");
@@ -75,81 +75,104 @@ void loop()
 	}
 
 	// read touch data from controller
-	uint16_t x, y, z1, z2;  // z1 ~= pressure
+	uint16_t x, y, z1, z2; // z1 ~= pressure
 	GUI.touchController.read_touch(&y, &x, &z1, &z2);
-	Serial.print("Touch point: ("); //AG
-	 Serial.print(x); Serial.print(", ");
-	 Serial.print(y); Serial.print(", ");
-	 Serial.print(z1); Serial.print(" / ");
-	 Serial.print(z2); Serial.println(")");
-	//AG
+	Serial.print("Touch point: ("); // AG
+	Serial.print(x);
+	Serial.print(", ");
+	Serial.print(y);
+	Serial.print(", ");
+	Serial.print(z1);
+	Serial.print(" / ");
+	Serial.print(z2);
+	Serial.println(")");
+	// AG
 
 	prevButtonState = buttonState;
 	prevStatus = GUI.blackbody.status;
 
-	switch(GUI.currPage)
+	switch (GUI.currPage)
 	{
 	/***************************************************************************************
 											Home Page
 	***************************************************************************************/
 	case homePage:
-		if (z1 > 3)		// ignore weak presses 
-						// (strong press reads about 200-500)
+		if (z1 > 3) // ignore weak presses
+					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseHomePageTouch(x, y);
 		}
-		else { buttonState = nonePressed; }
+		else
+		{
+			buttonState = nonePressed;
+		}
 
 		GUI.updateHomePageState(buttonState, prevButtonState);
 
-		if (GUI.currPage == configPage) 
+		if (GUI.currPage != homePage)
 		{
 			break;
 		}
 
 		// unlock setpoint field if you press
 		// within it
-		if(GUI.locked && prevButtonState == unlockRegionPressed)
+		if (GUI.locked && prevButtonState == unlockRegionPressed)
 		{
 			GUI.drawUnlocked();
 			GUI.locked = false;
 		}
 
-		if(GUI.blackbody.status != prevStatus)
+		if (GUI.blackbody.status != prevStatus)
 		{
 			GUI.drawStatus(GUI.blackbody.status);
 		}
 
 		// finally, update sourcePlateTemp and setPoint on screen
 		GUI.drawSetPoint(GUI.targetPoint, GUI.targetPointColor, TFT_WHITE, 310, 125);
-		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, TFT_BLACK, TFT_WHITE, 
+		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, TFT_BLACK, TFT_WHITE,
 						 10 + GUI.tft.textWidth("111.1", 7), 50);
 		break;
-	
+
 	/***************************************************************************************
-			                     		   	Config Page
+											Config Page
 	***************************************************************************************/
 	case configPage:
-		if (z1 > 3)		// ignore weak presses 
-						// (strong press reads about 200-500)
+		if (z1 > 3) // ignore weak presses
+					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseConfigPageTouch(x, y);
 		}
-		else { buttonState = nonePressed; }
+		else
+		{
+			buttonState = nonePressed;
+		}
 
 		GUI.updateConfigPageState(buttonState, prevButtonState);
 
-		if (GUI.currPage == homePage) 
-		{
-			break;
-		}
 		break;
-	
 	/***************************************************************************************
-			                        		Error Page
+										Address Adjust Page
+	***************************************************************************************/
+	case addressAdjustPage:
+		if (z1 > 3) // ignore weak presses
+					// (strong press reads about 200-500)
+		{
+			buttonState = GUI.parseAddressPageTouch(x, y);
+		}
+		else
+		{
+			buttonState = nonePressed;
+		}
+
+		GUI.updateAddressAdjustPageState(buttonState, prevButtonState);
+
+		break;
+
+	/***************************************************************************************
+											Error Page
 	***************************************************************************************/
 	case errorPage:
 
 		break;
-	}	
+	}
 }

@@ -18,10 +18,22 @@ const char * ip_address::getAddress()
     return ostr.str().c_str();
 }
 
-std::string ip_address::getAddressByte(const unsigned byteIndex)
+const char * ip_address::getAddressByte(const unsigned byteIndex)
 {
     std::ostringstream ostr;
-    ostr << std::setfill('0') << std::setw(4) << address[0] << '.';
+    ostr << std::setfill('0') << std::setw(3) << address[byteIndex] << std::endl;
 
-    return ostr.str();
+    return ostr.str().c_str();
+}
+
+void ip_address::incrByte(const unsigned byteIndex)
+{
+    if (address[byteIndex] < 255)
+       { address[byteIndex]++; }
+}
+
+void ip_address::decrByte(const unsigned byteIndex)
+{
+    if (address[byteIndex] > 0)
+       { address[byteIndex]--; }
 }
