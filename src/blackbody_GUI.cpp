@@ -65,6 +65,10 @@ ButtonState Blackbody_GUI::parseConfigPageTouch(const unsigned x, const unsigned
 	{
 		return backPressed;
 	}
+	else if ((x >= 330) && (x <= 1660) && (y <= 350) && (y >= 960))
+	{
+		return readyWindowPressed;
+	}
 
 	return nonePressed;
 }
@@ -73,11 +77,11 @@ ButtonState Blackbody_GUI::parseAddressPageTouch(const unsigned x, const unsigne
 {
 	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
 	{
-		return incrAddrPressed;
+		return incrPressed;
 	}
 	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
 	{
-		return decrAddrPressed;
+		return decrPressed;
 	}
 	else if ((x >= 450) && (x <= 1250) && (y <= 2400) && (y >= 1600))
 	{
@@ -94,6 +98,24 @@ ButtonState Blackbody_GUI::parseAddressPageTouch(const unsigned x, const unsigne
 	else if ((x >= 2930) && (x <= 3700) && (y <= 2400) && (y >= 1600))
 	{
 		return byteThreePressed;
+	}
+	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
+	{
+		return backPressed;
+	}
+
+	return nonePressed;
+}
+
+ButtonState Blackbody_GUI::parseWindowPageTouch(const unsigned x, const unsigned y)
+{
+	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
+	{
+		return incrPressed;
+	}
+	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
+	{
+		return decrPressed;
 	}
 	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
 	{
@@ -365,6 +387,29 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		currPage = addressAdjustPage;
 		break;
 	}
+	
+	case readyWindowPressed:
+	{
+		tft.fillScreen(TFT_WHITE);
+		tft.setTextDatum(ML_DATUM);
+
+		tft.drawFloat(readyWindow, 1, 60, 120, 7);
+
+		// incr/decr buttons
+		upArrowActive.pushSprite(185+44, 15+14);
+		tft.setPivot(185+44+32, 165+14);
+		downArrowActive.pushRotated(180);
+		tft.drawSmoothRoundRect(185, 15, 6, 5, 120, 60, TFT_BLACK);
+		tft.drawSmoothRoundRect(185, 165, 6, 5, 120, 60, TFT_BLACK);
+
+		// back buttom
+		tft.setPivot(15 + 9 + 32, 15 + 9 + 32);
+		downArrowActive.setPivot(0, 32);  // bottom left corner
+		downArrowActive.pushRotated(270); // bottom arrow
+		tft.drawSmoothRoundRect(15, 15, 6, 5, 50, 50, TFT_BLACK);
+		
+		currPage = windowAdjustPage;
+	}
 	}
 }
 
@@ -374,12 +419,12 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 	const unsigned middle_left = 160 - (tft.textWidth("000.111.222.333") / 2);
 	switch (buttonState)
 	{
-	case incrAddrPressed:
+	case incrPressed:
 	{
 		if (incrHeld)	   // flag that indicates if Incr button has been held > 1s
 		{				   // & controls auto-increment functionality
 			autoRate = 50; // 1/ ( rate[ms] ) = rate of incrementation. rate should be renamed period.
-			if (prevButtonState != incrAddrPressed)
+			if (prevButtonState != incrPressed)
 			{
 				incrHeld = false;
 				break;
@@ -387,7 +432,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			if (millis() - timeIncrFirstPressed >= 1000)
 			{
 				autoRate = 7.5;
-			} // after 5s, speed up incrementation
+			} // after 1s, speed up incrementation
 
 			if (millis() - timeIncrLastPressed >= autoRate)
 			{
@@ -406,7 +451,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		}
 
 		// button held > 1s
-		else if (incrEnable && (prevButtonState == incrAddrPressed) && (millis() - timeIncrLastPressed > 1000))
+		else if (incrEnable && (prevButtonState == incrPressed) && (millis() - timeIncrLastPressed > 1000))
 		{
 			address.incrByte(currByteSelected);
 			incrHeld = true;
@@ -416,12 +461,12 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		break;
 	}
 
-	case decrAddrPressed:
+	case decrPressed:
 	{
 		if (decrHeld) // code is symmetric to increment
 		{
 			autoRate = 50;
-			if (prevButtonState != decrAddrPressed)
+			if (prevButtonState != decrPressed)
 			{
 				decrHeld = false;
 				break;
@@ -446,7 +491,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			timeDecrFirstPressed = timeDecrLastPressed;
 		}
 		// button held
-		else if (decrEnable && (prevButtonState == decrAddrPressed) && (millis() - timeDecrLastPressed > 1000))
+		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
 		{
 			address.decrByte(currByteSelected);
 			decrHeld = true;
@@ -535,7 +580,127 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 	}
 	if (currPage == addressAdjustPage)
 	{
-	tft.drawString(address.getAddress(), middle_left, 120);
+		tft.drawString(address.getAddress(), middle_left, 120);
+	}
+}
+
+void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonState prevButtonState)
+{
+	switch (buttonState)
+	{
+	case incrPressed:
+	{
+		if (incrHeld)	   // flag that indicates if Incr button has been held > 1s
+		{				   // & controls auto-increment functionality
+			autoRate = 50; // 1/ ( rate[ms] ) = rate of incrementation. rate should be renamed period.
+			if (prevButtonState != incrPressed)
+			{
+				incrHeld = false;
+				break;
+			}
+			if (millis() - timeIncrFirstPressed >= 1000)
+			{
+				autoRate = 7.5;
+			} // after 1s, speed up incrementation
+
+			if (millis() - timeIncrLastPressed >= autoRate)
+			{
+				if (readyWindow < 9.9)
+				{
+					readyWindow += 0.1;
+				}
+				timeIncrLastPressed = millis();
+			}
+			break;
+		}
+
+		if (prevButtonState == nonePressed) // initial press
+		{
+			incrEnable = true;
+			if (readyWindow < 9.9)
+			{
+				readyWindow += 0.1;
+			}
+			timeIncrLastPressed = millis();
+			timeIncrFirstPressed = timeIncrLastPressed;
+		}
+
+		// button held > 1s
+		else if (incrEnable && (prevButtonState == incrPressed) && (millis() - timeIncrLastPressed > 1000))
+		{
+			if (readyWindow < 9.9)
+			{
+				readyWindow += 0.1;
+			}
+			incrHeld = true;
+			timeIncrLastPressed = millis();
+			timeIncrFirstPressed = timeIncrLastPressed;
+		}
+		break;
+	}
+
+	case decrPressed:
+	{
+		if (decrHeld) // code is symmetric to increment
+		{
+			autoRate = 50;
+			if (prevButtonState != decrPressed)
+			{
+				decrHeld = false;
+				break;
+			}
+			if (millis() - timeDecrFirstPressed >= 1000)
+			{
+				autoRate = 7.5;
+			}
+			if (millis() - timeDecrLastPressed >= autoRate)
+			{
+				if (readyWindow > 0.1)
+				{
+					readyWindow -= 0.1;
+				}
+				timeDecrLastPressed = millis();
+			}
+			break;
+		}
+
+		if (prevButtonState == nonePressed) // initial press
+		{
+			decrEnable = true;
+			if (readyWindow > 0.1)
+			{
+				readyWindow -= 0.1;
+			}
+			timeDecrLastPressed = millis();
+			timeDecrFirstPressed = timeDecrLastPressed;
+		}
+		// button held
+		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
+		{
+			if (readyWindow > 0.1)
+			{
+				readyWindow -= 0.1;
+			}
+			decrHeld = true;
+			timeDecrLastPressed = millis();
+			timeDecrFirstPressed = timeDecrLastPressed;
+		}
+		break;
+	}
+	
+	case backPressed:
+	{
+		if (prevButtonState == nonePressed)
+		{
+			tft.unloadFont();
+			drawConfigScreen();
+			currPage = configPage;
+		}
+	}
+	}
+	if (currPage == windowAdjustPage)
+	{
+		tft.drawFloat(readyWindow, 1, 60, 120, 7);
 	}
 }
 
@@ -576,6 +741,7 @@ void Blackbody_GUI::drawLocked()
 	tft.drawSmoothRoundRect(180, 25, 6, 5, 120, 60, TFT_SILVER);  // top rect
 	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_SILVER); // bottom rect
 	upArrowInactive.pushSprite(224, 39);						  // top arrow
+	tft.setPivot(0,0);
 	downArrowInactive.setPivot(224 + 32, 179 + 32);
 	downArrowInactive.pushRotated(180); // bottom arrow
 	targetPointColor = TFT_SILVER;
@@ -586,6 +752,7 @@ void Blackbody_GUI::drawUnlocked()
 	// change to unlocked color (BLACK)
 	tft.drawSmoothRoundRect(180, 25, 6, 5, 120, 60, TFT_BLACK);
 	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_BLACK);
+	tft.setPivot(0,0);
 	upArrowActive.pushSprite(224, 39); // top arrow
 	downArrowActive.setPivot(224 + 32, 179 + 32);
 	downArrowActive.pushRotated(180); // bottom arrow
@@ -780,6 +947,9 @@ void Blackbody_GUI::drawAddress(const unsigned x, const unsigned y, const unsign
 void Blackbody_GUI::drawReadyWindow(const unsigned x, const unsigned y)
 {
 	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
-	tft.drawString("+- 1.0 C", x + 15, y + 35, GFXFF);
+	tft.drawString("+-", x + 15, y + 35, GFXFF);
+	tft.drawFloat(readyWindow, 1, x+40, y + 35, GFXFF);
+	tft.drawString("C", x + 85, y + 35, GFXFF);
+	tft.drawCircle(x+80, y+40, 3, TFT_BLACK);
 	tft.drawRoundRect(x, y + 25, 120, 40, 5, TFT_BLACK);
 }

@@ -167,6 +167,23 @@ void loop()
 		GUI.updateAddressAdjustPageState(buttonState, prevButtonState);
 
 		break;
+	/***************************************************************************************
+										Window Adjust Page
+	***************************************************************************************/
+	case windowAdjustPage:
+		if (z1 > 3) // ignore weak presses
+					// (strong press reads about 200-500)
+		{
+			buttonState = GUI.parseWindowPageTouch(x, y);
+		}
+		else
+		{
+			buttonState = nonePressed;
+		}
+
+		GUI.updateWindowAdjustPageState(buttonState, prevButtonState);
+
+		break;
 
 	/***************************************************************************************
 											Error Page
