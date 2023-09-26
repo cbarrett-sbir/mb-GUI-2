@@ -1,16 +1,18 @@
 #include <TFT_eSPI.h> // graphics
 #include <WireIMXRT.h>
+#include <cstring>
 
 #include "blackbody_GUI.h"
 
 #include "Free_Fonts.h"
 #include "NotoSansBold36.h"
 #include "boot_background.h"
-#include "up_arrow_active.h"
-#include "up_arrow_inactive.h"
+#include "images.h"
 
 #define AA_FONT_LARGE NotoSansBold36
 
+// public
+// home page 
 ButtonState Blackbody_GUI::parseHomePageTouch(const unsigned x, const unsigned y)
 {
 	if (isIncrButton(x, y) && !locked)
@@ -44,84 +46,6 @@ ButtonState Blackbody_GUI::parseHomePageTouch(const unsigned x, const unsigned y
 	}
 
 	// if nothing caught
-	return nonePressed;
-}
-
-ButtonState Blackbody_GUI::parseConfigPageTouch(const unsigned x, const unsigned y)
-{
-	if ((x >= 1570) && (x <= 2830) && (y <= 3312) && (y >= 2730))
-	{
-		return ipModePressed;
-	}
-	else if ((x >= 400) && (x <= 2930) && (y <= 2170) && (y >= 1522))
-	{
-		return addressPressed;
-	}
-	else if ((x >= 400) && (x <= 1770) && (y <= 1000) && (y >= 400))
-	{
-		return readyWindowPressed;
-	}
-	else if ((x >= 3250) && (x <= 3900) && (y <= 3900) && (y >= 3000))
-	{
-		return backPressed;
-	}
-	else if ((x >= 330) && (x <= 1660) && (y <= 350) && (y >= 960))
-	{
-		return readyWindowPressed;
-	}
-
-	return nonePressed;
-}
-
-ButtonState Blackbody_GUI::parseAddressPageTouch(const unsigned x, const unsigned y)
-{
-	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
-	{
-		return incrPressed;
-	}
-	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
-	{
-		return decrPressed;
-	}
-	else if ((x >= 450) && (x <= 1250) && (y <= 2400) && (y >= 1600))
-	{
-		return byteZeroPressed;
-	}
-	else if ((x >= 1290) && (x <= 2100) && (y <= 2400) && (y >= 1600))
-	{
-		return byteOnePressed;
-	}
-	else if ((x >= 2130) && (x <= 2900) && (y <= 2400) && (y >= 1600))
-	{
-		return byteTwoPressed;
-	}
-	else if ((x >= 2930) && (x <= 3700) && (y <= 2400) && (y >= 1600))
-	{
-		return byteThreePressed;
-	}
-	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
-	{
-		return backPressed;
-	}
-
-	return nonePressed;
-}
-
-ButtonState Blackbody_GUI::parseWindowPageTouch(const unsigned x, const unsigned y)
-{
-	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
-	{
-		return incrPressed;
-	}
-	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
-	{
-		return decrPressed;
-	}
-	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
-	{
-		return backPressed;
-	}
-
 	return nonePressed;
 }
 
@@ -286,6 +210,43 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 	}
 }
 
+void Blackbody_GUI::drawSetPointRegion()
+{
+	tft.drawSmoothRoundRect(165, 8, 6, 5, 150, 227, TFT_BLACK);
+
+	tft.setTextDatum(TL_DATUM);
+	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
+	tft.setTextPadding(tft.textWidth("SETPOINT", 4));
+	tft.drawString("SETPOINT", 182, 0, 4);
+}
+
+// config page
+ButtonState Blackbody_GUI::parseConfigPageTouch(const unsigned x, const unsigned y)
+{
+	if ((x >= 1570) && (x <= 2830) && (y <= 3312) && (y >= 2730))
+	{
+		return ipModePressed;
+	}
+	else if ((x >= 400) && (x <= 2930) && (y <= 2170) && (y >= 1522))
+	{
+		return addressPressed;
+	}
+	else if ((x >= 400) && (x <= 1770) && (y <= 1000) && (y >= 400))
+	{
+		return readyWindowPressed;
+	}
+	else if ((x >= 300) && (x <= 800) && (y <= 3700) && (y >= 2950))
+	{
+		return backPressed;
+	}
+	else if ((x >= 330) && (x <= 1660) && (y <= 350) && (y >= 960))
+	{
+		return readyWindowPressed;
+	}
+
+	return nonePressed;
+}
+
 void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState prevButtonState)
 {
 	switch (buttonState)
@@ -296,10 +257,10 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		{
 			break;
 		}
-		ipMode = !ipMode;
+		blackbody.ipMode= !blackbody.ipMode;
 
-		drawIPMode(ipMode, 130, 50);
-		if (ipMode)
+		drawIPMode(blackbody.ipMode, 130, 60);
+		if (blackbody.ipMode)
 		{
 			drawAddress(5, 90, TFT_LIGHTGREY);
 		}
@@ -317,21 +278,6 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 			break;
 		}
 		tft.fillScreen(TFT_WHITE);
-		upArrowActive.createSprite(32, 32);
-		upArrowActive.setSwapBytes(true); // change this if colors are weird
-		upArrowActive.pushImage(0, 0, 32, 32, up_arrow_active);
-
-		upArrowInactive.createSprite(32, 32);
-		upArrowInactive.setSwapBytes(false); // change this if colors are weird
-		upArrowInactive.pushImage(0, 0, 32, 32, up_arrow_inactive);
-
-		downArrowActive.createSprite(32, 32);
-		downArrowActive.setSwapBytes(true); // change this if colors are weird
-		downArrowActive.pushImage(0, 0, 32, 32, up_arrow_active);
-
-		downArrowInactive.createSprite(32, 32);
-		downArrowInactive.setSwapBytes(true); // change this if colors are weird
-		downArrowInactive.pushImage(0, 0, 32, 32, up_arrow_inactive);
 
 		drawSetPointRegion();
 		drawConfigButton();
@@ -352,10 +298,10 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 
 	case addressPressed:
 	{
-		if (ipMode == 1)
+		if (blackbody.ipMode== 1)
 		{
 			break;
-		} // 1 = DHCP, used to ignore presses in DHCP more
+		} // 1 = DHCP, used to ignore presses in DHCP
 
 		if (prevButtonState != nonePressed)
 		{
@@ -367,23 +313,25 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		tft.loadFont(AA_FONT_LARGE);
 		const unsigned middle_left = 160 - (tft.textWidth("000.111.222.333") / 2);
 
-		tft.drawString(address.getAddress(), middle_left, 120);
+		tft.drawString(blackbody.address.getAddress(), middle_left, 120);
 		tft.drawWideLine(middle_left + tft.textWidth("000.111.222."), 140, middle_left + tft.textWidth("000.111.222.333"), 140, 4, TFT_BLACK, TFT_WHITE);
 		tft.unloadFont();
 
 		// incr/decr buttons
 		upArrowActive.pushSprite(185+44, 15+14);
-		tft.setPivot(185+44+32, 165+14);
-		downArrowActive.pushRotated(180);
+		downArrow.pushSprite(185+44, 240-(32+14+15));
 		tft.drawSmoothRoundRect(185, 15, 6, 5, 120, 60, TFT_BLACK);
 		tft.drawSmoothRoundRect(185, 165, 6, 5, 120, 60, TFT_BLACK);
 
 		// back buttom
-		tft.setPivot(15 + 9 + 32, 15 + 9 + 32);
-		downArrowActive.setPivot(0, 32);  // bottom left corner
-		downArrowActive.pushRotated(270); // bottom arrow
+		backArrow.pushSprite(24, 24);
 		tft.drawSmoothRoundRect(15, 15, 6, 5, 50, 50, TFT_BLACK);
+
+		// save button
+		checkmark.pushSprite(89, 24);
+		tft.drawSmoothRoundRect(80, 15, 6, 5, 50, 50, TFT_BLACK);
 		
+		prospectiveIpAddress = blackbody.address;
 		currPage = addressAdjustPage;
 		break;
 	}
@@ -393,7 +341,8 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		tft.fillScreen(TFT_WHITE);
 		tft.setTextDatum(ML_DATUM);
 
-		tft.drawFloat(readyWindow, 1, 60, 120, 7);
+		tft.setTextColor(TFT_BLACK);
+		tft.drawFloat(blackbody.readyWindow, 1, 60, 120, 7);
 
 		// incr/decr buttons
 		upArrowActive.pushSprite(185+44, 15+14);
@@ -403,14 +352,116 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		tft.drawSmoothRoundRect(185, 165, 6, 5, 120, 60, TFT_BLACK);
 
 		// back buttom
-		tft.setPivot(15 + 9 + 32, 15 + 9 + 32);
-		downArrowActive.setPivot(0, 32);  // bottom left corner
-		downArrowActive.pushRotated(270); // bottom arrow
+		backArrow.pushSprite(24, 24);
 		tft.drawSmoothRoundRect(15, 15, 6, 5, 50, 50, TFT_BLACK);
+
+		// save button
+		checkmark.pushSprite(89, 24);
+		tft.drawSmoothRoundRect(80, 15, 6, 5, 50, 50, TFT_BLACK);
 		
+		prospectiveReadyWindow = blackbody.readyWindow;
 		currPage = windowAdjustPage;
 	}
+
+	default:
+	{
+		// DHCP or STATIC
+		if (prevIpMode != blackbody.ipMode)
+		{
+			drawIPMode(blackbody.ipMode, 130, 60);
+			prevIpMode = blackbody.ipMode;
+		}
+
+		// IP address
+		if (prevIpAddress != blackbody.address)
+		{
+			if (blackbody.ipMode)
+			{
+				drawAddress(5, 90, TFT_LIGHTGREY);
+			}
+			else
+			{
+				drawAddress(5, 90, TFT_BLACK);
+			}
+			prevIpAddress = blackbody.address;
+		}
 	}
+	}
+}
+
+void Blackbody_GUI::drawConfigScreen()
+{
+	#define ip_mode_height 60
+	#define address_height 90
+	#define rdy_win_height 165
+	tft.fillScreen(TFT_WHITE);
+
+	tft.setTextDatum(TC_DATUM);
+	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
+	tft.setFreeFont(FSSB12);
+	tft.drawString("CONFIG", 160, 10, GFXFF);
+
+	tft.setTextDatum(TL_DATUM);
+	tft.drawString("IP Mode", 5, ip_mode_height, GFXFF);
+	drawIPMode(blackbody.ipMode, 130, ip_mode_height);
+
+	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
+	tft.drawString("Address", 5, address_height, GFXFF);
+	if (blackbody.ipMode)
+	{
+		drawAddress(5, 90, TFT_LIGHTGREY);
+	}
+	else
+	{
+		drawAddress(5, 90, TFT_BLACK);
+	}
+
+	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
+	tft.drawString("Ready Window", 5, rdy_win_height, GFXFF);
+	drawReadyWindow(5, rdy_win_height);
+
+	// back buttom
+	smallBackArrow.pushSprite(10+8, 10+8);
+	tft.drawSmoothRoundRect(10, 10, 6, 5, 40, 40, TFT_BLACK);
+}
+
+// address page
+ButtonState Blackbody_GUI::parseAddressPageTouch(const unsigned x, const unsigned y)
+{
+	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
+	{
+		return incrPressed;
+	}
+	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
+	{
+		return decrPressed;
+	}
+	else if ((x >= 450) && (x <= 1250) && (y <= 2400) && (y >= 1600))
+	{
+		return byteZeroPressed;
+	}
+	else if ((x >= 1290) && (x <= 2100) && (y <= 2400) && (y >= 1600))
+	{
+		return byteOnePressed;
+	}
+	else if ((x >= 2130) && (x <= 2900) && (y <= 2400) && (y >= 1600))
+	{
+		return byteTwoPressed;
+	}
+	else if ((x >= 2930) && (x <= 3700) && (y <= 2400) && (y >= 1600))
+	{
+		return byteThreePressed;
+	}
+	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
+	{
+		return backPressed;
+	}
+	else if ((x >= 1170) && (x <= 1760) && (y <= 3550) && (y >= 2570))
+	{
+		return savePressed;
+	}
+
+	return nonePressed;
 }
 
 void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, ButtonState prevButtonState)
@@ -436,7 +487,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 
 			if (millis() - timeIncrLastPressed >= autoRate)
 			{
-				address.incrByte(currByteSelected);
+				prospectiveIpAddress.incrByte(currByteSelected);
 				timeIncrLastPressed = millis();
 			}
 			break;
@@ -445,7 +496,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		if (prevButtonState == nonePressed) // initial press
 		{
 			incrEnable = true;
-			address.incrByte(currByteSelected);
+			prospectiveIpAddress.incrByte(currByteSelected);
 			timeIncrLastPressed = millis();
 			timeIncrFirstPressed = timeIncrLastPressed;
 		}
@@ -453,7 +504,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		// button held > 1s
 		else if (incrEnable && (prevButtonState == incrPressed) && (millis() - timeIncrLastPressed > 1000))
 		{
-			address.incrByte(currByteSelected);
+			prospectiveIpAddress.incrByte(currByteSelected);
 			incrHeld = true;
 			timeIncrLastPressed = millis();
 			timeIncrFirstPressed = timeIncrLastPressed;
@@ -477,7 +528,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			}
 			if (millis() - timeDecrLastPressed >= autoRate)
 			{
-				address.decrByte(currByteSelected);
+				prospectiveIpAddress.decrByte(currByteSelected);
 				timeDecrLastPressed = millis();
 			}
 			break;
@@ -486,14 +537,14 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		if (prevButtonState == nonePressed) // initial press
 		{
 			decrEnable = true;
-			address.decrByte(currByteSelected);
+			prospectiveIpAddress.decrByte(currByteSelected);
 			timeDecrLastPressed = millis();
 			timeDecrFirstPressed = timeDecrLastPressed;
 		}
 		// button held
 		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
 		{
-			address.decrByte(currByteSelected);
+			prospectiveIpAddress.decrByte(currByteSelected);
 			decrHeld = true;
 			timeDecrLastPressed = millis();
 			timeDecrFirstPressed = timeDecrLastPressed;
@@ -570,6 +621,18 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			currPage = configPage;
 		}
 	}
+	break;
+
+	case savePressed:
+	{
+		if (prevButtonState != nonePressed)
+		{
+			break;
+		}
+		Serial.print("ADDR ");
+		Serial.print(prospectiveIpAddress.getAddress());
+		break;
+	}
 
 	default:			  // runs if currState = nonePressed (or some other uncaught state)
 		decrHeld = false; // stops auto-incr/decr
@@ -580,8 +643,40 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 	}
 	if (currPage == addressAdjustPage)
 	{
-		tft.drawString(address.getAddress(), middle_left, 120);
+		if (prospectiveIpAddress == blackbody.address)
+		{
+			tft.setTextColor(TFT_BLACK, TFT_WHITE);
+			tft.drawString(prospectiveIpAddress.getAddress(), middle_left, 120);
+		}
+		else
+		{
+			tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
+			tft.drawString(prospectiveIpAddress.getAddress(), middle_left, 120);
+		}
 	}
+}
+
+// ready window page
+ButtonState Blackbody_GUI::parseWindowPageTouch(const unsigned x, const unsigned y)
+{
+	if ((x >= 2370) && (x <= 3722) && (y <= 3600) && (y >= 2760))
+	{
+		return incrPressed;
+	}
+	else if ((x >= 2370) && (x <= 3722) && (y <= 1350) && (y >= 485))
+	{
+		return decrPressed;
+	}
+	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
+	{
+		return backPressed;
+	}
+	else if ((x >= 1170) && (x <= 1760) && (y <= 3550) && (y >= 2570))
+	{
+		return savePressed;
+	}
+
+	return nonePressed;
 }
 
 void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonState prevButtonState)
@@ -605,9 +700,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 
 			if (millis() - timeIncrLastPressed >= autoRate)
 			{
-				if (readyWindow < 9.9)
+				if (prospectiveReadyWindow < 9.9)
 				{
-					readyWindow += 0.1;
+					prospectiveReadyWindow += 0.1;
 				}
 				timeIncrLastPressed = millis();
 			}
@@ -617,9 +712,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		if (prevButtonState == nonePressed) // initial press
 		{
 			incrEnable = true;
-			if (readyWindow < 9.9)
+			if (prospectiveReadyWindow < 9.9)
 			{
-				readyWindow += 0.1;
+				prospectiveReadyWindow += 0.1;
 			}
 			timeIncrLastPressed = millis();
 			timeIncrFirstPressed = timeIncrLastPressed;
@@ -628,9 +723,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		// button held > 1s
 		else if (incrEnable && (prevButtonState == incrPressed) && (millis() - timeIncrLastPressed > 1000))
 		{
-			if (readyWindow < 9.9)
+			if (prospectiveReadyWindow < 9.9)
 			{
-				readyWindow += 0.1;
+				prospectiveReadyWindow += 0.1;
 			}
 			incrHeld = true;
 			timeIncrLastPressed = millis();
@@ -655,9 +750,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 			}
 			if (millis() - timeDecrLastPressed >= autoRate)
 			{
-				if (readyWindow > 0.1)
+				if (prospectiveReadyWindow > 0.1)
 				{
-					readyWindow -= 0.1;
+					prospectiveReadyWindow -= 0.1;
 				}
 				timeDecrLastPressed = millis();
 			}
@@ -667,9 +762,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		if (prevButtonState == nonePressed) // initial press
 		{
 			decrEnable = true;
-			if (readyWindow > 0.1)
+			if (prospectiveReadyWindow > 0.1)
 			{
-				readyWindow -= 0.1;
+				prospectiveReadyWindow -= 0.1;
 			}
 			timeDecrLastPressed = millis();
 			timeDecrFirstPressed = timeDecrLastPressed;
@@ -677,9 +772,9 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		// button held
 		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
 		{
-			if (readyWindow > 0.1)
+			if (prospectiveReadyWindow > 0.1)
 			{
-				readyWindow -= 0.1;
+				prospectiveReadyWindow -= 0.1;
 			}
 			decrHeld = true;
 			timeDecrLastPressed = millis();
@@ -692,15 +787,42 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 	{
 		if (prevButtonState == nonePressed)
 		{
+			Serial.print("L");
+			Serial.println(prospectiveReadyWindow);
 			tft.unloadFont();
 			drawConfigScreen();
 			currPage = configPage;
 		}
 	}
-	}
-	if (currPage == windowAdjustPage)
+
+	case savePressed:
 	{
-		tft.drawFloat(readyWindow, 1, 60, 120, 7);
+		if (prevButtonState != nonePressed)
+		{
+			break;
+		}
+		Serial.print("L ");
+		Serial.println(prospectiveReadyWindow);
+	}
+
+	default:
+	{
+		if (currPage == windowAdjustPage)
+		{
+			if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.01))
+			{
+				tft.setTextColor(TFT_BLACK, TFT_WHITE);
+				tft.drawFloat(prospectiveReadyWindow, 1, 60, 120, 7);
+			}
+			else
+			{
+				tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
+				tft.drawFloat(prospectiveReadyWindow, 1, 60, 120, 7);
+			}
+			
+		}
+		break;
+	}
 	}
 }
 
@@ -759,16 +881,6 @@ void Blackbody_GUI::drawUnlocked()
 	targetPointColor = TFT_BLACK;
 }
 
-void Blackbody_GUI::drawSetPointRegion()
-{
-	tft.drawSmoothRoundRect(165, 8, 6, 5, 150, 227, TFT_BLACK);
-
-	tft.setTextDatum(TL_DATUM);
-	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
-	tft.setTextPadding(tft.textWidth("SETPOINT", 4));
-	tft.drawString("SETPOINT", 182, 0, 4);
-}
-
 void Blackbody_GUI::drawConfigButton()
 {
 	tft.setTextDatum(MC_DATUM);
@@ -804,6 +916,22 @@ void Blackbody_GUI::initDisplayGraphics()
 	downArrowInactive.createSprite(32, 32);
 	downArrowInactive.setSwapBytes(true); // change this if colors are weird
 	downArrowInactive.pushImage(0, 0, 32, 32, up_arrow_inactive);
+
+	backArrow.createSprite(32, 32);
+	backArrow.setSwapBytes(true); // change this if colors are weird
+	backArrow.pushImage(0, 0, 32, 32, back_arrow);
+
+	smallBackArrow.createSprite(24, 24);
+	smallBackArrow.setSwapBytes(true); // change this if colors are weird
+	smallBackArrow.pushImage(0, 0, 24, 24, _back_arrow_small);
+
+	checkmark.createSprite(32, 32);
+	checkmark.setSwapBytes(true); // change this if colors are weird
+	checkmark.pushImage(0, 0, 32, 32, _checkmark);
+
+	downArrow.createSprite(32, 32);
+	downArrow.setSwapBytes(true); // change this if colors are weird
+	downArrow.pushImage(0, 0, 32, 32, _down_arrow);
 
 	drawSetPointRegion();
 	drawConfigButton();
@@ -842,44 +970,6 @@ void Blackbody_GUI::drawBootScreen()
 	}
 }
 
-void Blackbody_GUI::drawConfigScreen()
-{
-	#define ip_mode_height 50
-	#define address_height 90
-	#define rdy_win_height 165
-	tft.fillScreen(TFT_WHITE);
-
-	tft.setTextDatum(TC_DATUM);
-	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
-	tft.setFreeFont(FSSB12);
-	tft.drawString("CONFIG", 160, 10, GFXFF);
-
-	tft.setTextDatum(TL_DATUM);
-	tft.drawString("IP Mode", 5, ip_mode_height, GFXFF);
-	drawIPMode(ipMode, 130, ip_mode_height);
-
-	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
-	tft.drawString("Address", 5, address_height, GFXFF);
-	if (ipMode)
-	{
-		drawAddress(5, 90, TFT_LIGHTGREY);
-	}
-	else
-	{
-		drawAddress(5, 90, TFT_BLACK);
-	}
-
-	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
-	tft.drawString("Ready Window", 5, rdy_win_height, GFXFF);
-	drawReadyWindow(5, rdy_win_height);
-
-	tft.setPivot(260 + 9 + 32, 10 + 9 + 32);
-	downArrowActive.setPivot(0, 32);  // bottom left corner
-	downArrowActive.pushRotated(270); // bottom arrow
-
-	tft.drawSmoothRoundRect(260, 10, 6, 5, 50, 50, TFT_BLACK);
-}
-
 // private
 bool Blackbody_GUI::isIncrButton(const unsigned x, const unsigned y)
 {
@@ -911,7 +1001,6 @@ bool Blackbody_GUI::isConfig(const unsigned x, const unsigned y)
 	return (x >= 700) && (x <= 1800) && (y <= 1300) && (y >= 830);
 }
 
-//
 void Blackbody_GUI::drawIPMode(const bool mode, const unsigned x, const unsigned y)
 {
 	if (mode) // 1 = DCHP, 0 =  STATIC
@@ -940,7 +1029,7 @@ void Blackbody_GUI::drawAddress(const unsigned x, const unsigned y, const unsign
 	tft.setTextDatum(TL_DATUM);
 	tft.setTextColor(color, TFT_WHITE, true);
 	tft.setTextPadding(tft.textWidth("192.168.100.001", GFXFF));
-	tft.drawString(address.getAddress(), x + 15, y + 35, GFXFF);
+	tft.drawString(blackbody.address.getAddress(), x + 15, y + 35, GFXFF);
 	tft.drawRoundRect(x, y + 25, 220, 40, 5, color);
 }
 
@@ -948,8 +1037,15 @@ void Blackbody_GUI::drawReadyWindow(const unsigned x, const unsigned y)
 {
 	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
 	tft.drawString("+-", x + 15, y + 35, GFXFF);
-	tft.drawFloat(readyWindow, 1, x+40, y + 35, GFXFF);
+	tft.drawFloat(blackbody.readyWindow, 1, x+40, y + 35, GFXFF);
 	tft.drawString("C", x + 85, y + 35, GFXFF);
-	tft.drawCircle(x+80, y+40, 3, TFT_BLACK);
+	tft.drawCircle(x+80, y+42, 3, TFT_BLACK);
 	tft.drawRoundRect(x, y + 25, 120, 40, 5, TFT_BLACK);
+}
+
+bool Blackbody_GUI::is_equal(float f1, float f2, float epsilon) 
+{
+        if(abs(f1-f2)<epsilon)
+                return true;
+        return false;
 }

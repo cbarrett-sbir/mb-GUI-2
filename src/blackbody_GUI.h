@@ -23,6 +23,7 @@ enum ButtonState
 	addressPressed,
 	readyWindowPressed,
 	backPressed,
+	savePressed,
 	byteZeroPressed,
 	byteOnePressed,
 	byteTwoPressed,
@@ -71,11 +72,12 @@ public:
 		 drawConfigScreen();
 
 private:
-	// config settings
-	bool ipMode = 1; // 1 = DHCP, 0 = STATIC
-	ip_address address = ip_address(192, 168, 0, 1);
+	bool prevIpMode = blackbody.ipMode;
+	bool prospectiveIpMode = blackbody.ipMode;
+	float prospectiveReadyWindow = blackbody.readyWindow;
+	ip_address prospectiveIpAddress = ip_address(192, 168, 200, 161);
+	ip_address prevIpAddress = ip_address(192, 168, 200, 161);
 	unsigned currByteSelected = 3;
-	float readyWindow = 0.1;
 
 	// guard conditions used to implement the button hold auto-increment/decrement feature
 	bool incrHeld = false;
@@ -97,6 +99,10 @@ private:
 	TFT_eSprite upArrowInactive = TFT_eSprite(&tft);
 	TFT_eSprite downArrowActive = TFT_eSprite(&tft);
 	TFT_eSprite downArrowInactive = TFT_eSprite(&tft);
+	TFT_eSprite backArrow = TFT_eSprite(&tft);
+	TFT_eSprite smallBackArrow = TFT_eSprite(&tft);
+	TFT_eSprite checkmark = TFT_eSprite(&tft);
+	TFT_eSprite downArrow = TFT_eSprite(&tft);
 
 	// home page
 	bool isIncrButton(const unsigned x, const unsigned y),
@@ -110,6 +116,8 @@ private:
 	void drawIPMode(bool mode, const unsigned x, const unsigned y);
 	void drawAddress(const unsigned x, const unsigned y, const unsigned color);
 	void drawReadyWindow(const unsigned x, const unsigned y);
+
+	bool is_equal(float f1, float f2, float epsilon);
 };
 
 #endif // BLACKBODY_GUI_H_

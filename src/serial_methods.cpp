@@ -34,4 +34,12 @@ void parseCommand(std::string s, Blackbody& blackbody)
 	{
 		blackbody.setPoint = std::stof(value);
 	}
+	else if(response == "L")
+	{
+		blackbody.readyWindow = std::stof(value);
+	}
+	else if(response == "ADDR")
+	{
+		blackbody.address = ip_address(std::stoi(value.substr(0, 3)), std::stoi(value.substr(4, 3)), std::stoi(value.substr(8, 3)), std::stoi(value.substr(12, 3)));
+	}
 }

@@ -56,7 +56,7 @@ void setup()
 
 void loop()
 {
-	// check for response from blackbody SCC
+	// check for response from blackbody SDC
 	if (Serial.available()) // changed from Serial5 to Serial
 							// to test with other screen.
 							// 6 locations in main.cpp,
@@ -65,27 +65,29 @@ void loop()
 		readSerial(buffer, GUI.blackbody);
 	}
 
-	// every 0.5s request the source plate
+	// every 1s request the source plate
 	// temperature and BB status over UART
-	if (millis() - prevTime > 500)
+	if (millis() - prevTime > 1000)
 	{
 		prevTime = millis();
-		Serial.println("M2");
-		Serial.println("MS");
+		//Serial.println("M2");
+		//Serial.println("MS");
+		//Serial.println("ML");
+		Serial.println("MADDR");
 	}
 
 	// read touch data from controller
 	uint16_t x, y, z1, z2; // z1 ~= pressure
 	GUI.touchController.read_touch(&y, &x, &z1, &z2);
-	Serial.print("Touch point: ("); // AG
-	Serial.print(x);
-	Serial.print(", ");
-	Serial.print(y);
-	Serial.print(", ");
-	Serial.print(z1);
-	Serial.print(" / ");
-	Serial.print(z2);
-	Serial.println(")");
+	// Serial.print("Touch point: ("); // AG
+	// Serial.print(x);
+	// Serial.print(", ");
+	// Serial.print(y);
+	// Serial.print(", ");
+	// Serial.print(z1);
+	// Serial.print(" / ");
+	// Serial.print(z2);
+	// Serial.println(")");
 	// AG
 
 	prevButtonState = buttonState;

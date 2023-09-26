@@ -3,22 +3,22 @@
 #include <iomanip>
 #include <sstream>
 
-ip_address::ip_address(unsigned b0, unsigned b1, unsigned b2, unsigned b3) :
-    address{b0, b1, b2, b3}
-{ }
+ip_address::ip_address(unsigned b0, unsigned b1, unsigned b2, unsigned b3) : address{b0, b1, b2, b3}
+{
+}
 
-const char * ip_address::getAddress()
+const char *ip_address::getAddress()
 {
     std::ostringstream ostr;
     ostr << std::setfill('0') << std::setw(3) << address[0] << '.'
-    << std::setfill('0') << std::setw(3) << address[1] << '.'
-    << std::setfill('0') << std::setw(3) << address[2] << '.'
-    << std::setfill('0') << std::setw(3) << address[3] << std::endl;
+         << std::setfill('0') << std::setw(3) << address[1] << '.'
+         << std::setfill('0') << std::setw(3) << address[2] << '.'
+         << std::setfill('0') << std::setw(3) << address[3] << std::endl;
 
     return ostr.str().c_str();
 }
 
-const char * ip_address::getAddressByte(const unsigned byteIndex)
+const char *ip_address::getAddressByte(const unsigned byteIndex)
 {
     std::ostringstream ostr;
     ostr << std::setfill('0') << std::setw(3) << address[byteIndex] << std::endl;
@@ -29,11 +29,45 @@ const char * ip_address::getAddressByte(const unsigned byteIndex)
 void ip_address::incrByte(const unsigned byteIndex)
 {
     if (address[byteIndex] < 255)
-       { address[byteIndex]++; }
+    {
+        address[byteIndex]++;
+    }
 }
 
 void ip_address::decrByte(const unsigned byteIndex)
 {
     if (address[byteIndex] > 0)
-       { address[byteIndex]--; }
+    {
+        address[byteIndex]--;
+    }
+}
+
+ip_address &ip_address::operator=(const ip_address &other)
+{
+    if (this != &other)
+    { // Check for self-assignment
+        for (unsigned i = 0; i < 4; ++i)
+        {
+            address[i] = other.address[i];
+        }
+    }
+    return *this;
+}
+
+bool ip_address::operator==(const ip_address &other) const
+{
+    for (unsigned i = 0; i < 4; ++i)
+    {
+        if (address[i] != other.address[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ip_address::operator!=(const ip_address &other) const
+{
+    return false;
+    return !(address == other.address);
 }

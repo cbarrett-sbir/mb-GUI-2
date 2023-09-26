@@ -7,6 +7,9 @@ class ip_address
 {
     public:
     ip_address(unsigned byte0, unsigned byte1, unsigned byte2, unsigned byte3);
+    ip_address& operator=(const ip_address& other);
+    bool operator==(const ip_address& other) const;
+    bool operator!=(const ip_address &other) const;
 
     void incrByte(const unsigned byteIndex);
     void decrByte(const unsigned byteIndex);
