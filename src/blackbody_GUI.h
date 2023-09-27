@@ -73,6 +73,7 @@ public:
 
 private:
 	bool prevIpMode = blackbody.ipMode;
+	float prevReadyWindow = blackbody.readyWindow;
 	bool prospectiveIpMode = blackbody.ipMode;
 	float prospectiveReadyWindow = blackbody.readyWindow;
 	ip_address prospectiveIpAddress = ip_address(192, 168, 200, 161);

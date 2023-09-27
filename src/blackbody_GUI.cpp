@@ -188,6 +188,7 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 		{
 			drawConfigScreen();
 			currPage = configPage;
+			delay(150);
 		}
 	}
 
@@ -384,6 +385,13 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 				drawAddress(5, 90, TFT_BLACK);
 			}
 			prevIpAddress = blackbody.address;
+		}
+
+		// ready window
+		if ( !is_equal(prevReadyWindow, blackbody.readyWindow, 0.01) )
+		{
+			drawReadyWindow(5, 165);
+			prevReadyWindow = blackbody.readyWindow;
 		}
 	}
 	}
@@ -630,7 +638,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			break;
 		}
 		Serial.print("ADDR ");
-		Serial.print(prospectiveIpAddress.getAddress());
+		Serial.println(prospectiveIpAddress.getAddress());
 		break;
 	}
 
@@ -1039,7 +1047,7 @@ void Blackbody_GUI::drawReadyWindow(const unsigned x, const unsigned y)
 	tft.drawString("+-", x + 15, y + 35, GFXFF);
 	tft.drawFloat(blackbody.readyWindow, 1, x+40, y + 35, GFXFF);
 	tft.drawString("C", x + 85, y + 35, GFXFF);
-	tft.drawCircle(x+80, y+42, 3, TFT_BLACK);
+	tft.drawCircle(x+80, y+39, 3, TFT_BLACK);
 	tft.drawRoundRect(x, y + 25, 120, 40, 5, TFT_BLACK);
 }
 
