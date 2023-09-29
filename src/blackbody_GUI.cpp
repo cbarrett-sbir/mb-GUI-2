@@ -760,7 +760,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 			}
 			if (millis() - timeDecrLastPressed >= autoRate)
 			{
-				if (prospectiveReadyWindow > 0.1)
+				if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
 				{
 					prospectiveReadyWindow -= 0.1;
 				}
@@ -772,7 +772,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		if (prevButtonState == nonePressed) // initial press
 		{
 			decrEnable = true;
-			if (prospectiveReadyWindow > 0.1)
+			if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
 			{
 				prospectiveReadyWindow -= 0.1;
 			}
@@ -782,7 +782,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		// button held
 		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
 		{
-			if (prospectiveReadyWindow > 0.1)
+			if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
 			{
 				prospectiveReadyWindow -= 0.1;
 			}
@@ -797,12 +797,11 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 	{
 		if (prevButtonState == nonePressed)
 		{
-			Serial.print("L");
-			Serial.println(prospectiveReadyWindow);
 			tft.unloadFont();
 			drawConfigScreen();
 			currPage = configPage;
 		}
+		break;
 	}
 
 	case savePressed:
@@ -814,32 +813,27 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		Serial.print("L ");
 		Serial.println(prospectiveReadyWindow);
 	}
-
-	default:
-	{
-		
-	}
+	default: {}
 	}
 	if (currPage == windowAdjustPage)
+	{
+		if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.01))
 		{
-			if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.01))
-			{
-				tft.setTextColor(TFT_BLACK, TFT_WHITE);
-				tft.drawFloat(prospectiveReadyWindow, 1, 60, 120, 7);
-			}
-			else
-			{
-				tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
-				tft.drawFloat(prospectiveReadyWindow, 1, 60, 120, 7);
-			}
-			
+			tft.setTextColor(TFT_BLACK, TFT_WHITE);
+			tft.drawFloat(blackbody.readyWindow, 1, 60, 120, 7);
 		}
+		else
+		{
+			tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
+			tft.drawFloat(prospectiveReadyWindow, 1, 60, 120, 7);
+		}
+	}
 }
 
 void Blackbody_GUI::drawStatus(const unsigned status)
 {
 	unsigned xPos = 80;
-	unsigned yPos = 140;
+	unsigned yPos = 140-20;
 
 	if (status == 0)
 	{
@@ -847,7 +841,7 @@ void Blackbody_GUI::drawStatus(const unsigned status)
 		tft.setTextColor(TFT_DARKGREEN, TFT_WHITE, true);
 		tft.setTextPadding(tft.textWidth("READY", 4));
 		tft.drawString("READY", xPos, yPos, 4);
-		tft.drawSmoothRoundRect(34, yPos - 20, 6, 5, 93, 34, TFT_DARKGREEN);
+		tft.drawSmoothRoundRect(34, yPos - 20, 6, 5, 93, 34, TFT_WHITE);
 	}
 	else if (status == 16)
 	{
@@ -855,7 +849,7 @@ void Blackbody_GUI::drawStatus(const unsigned status)
 		tft.setTextColor(TFT_RED, TFT_WHITE, true);
 		tft.setTextPadding(tft.textWidth("READY", 4));
 		tft.drawString("BUSY", xPos, yPos, 4);
-		tft.drawSmoothRoundRect(34, yPos - 20, 6, 5, 93, 34, TFT_RED);
+		tft.drawSmoothRoundRect(34, yPos - 20, 6, 5, 93, 34, TFT_WHITE);
 	}
 	else if (status == 32)
 	{
@@ -896,7 +890,7 @@ void Blackbody_GUI::drawConfigButton()
 	tft.setTextDatum(MC_DATUM);
 	tft.setTextColor(TFT_BLACK, TFT_WHITE, true);
 	tft.drawString("CONFIG", 80, 190, 4);
-	tft.drawSmoothRoundRect(30, 170, 6, 5, 100, 34, TFT_BLACK);
+	tft.drawSmoothRoundRect(25, 170, 6, 5, 110, 34, TFT_BLACK);
 }
 
 void Blackbody_GUI::drawSetPoint(float number, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos)
@@ -1003,7 +997,7 @@ bool Blackbody_GUI::isUnlockRegion(const unsigned x, const unsigned y)
 
 bool Blackbody_GUI::isError(const unsigned x, const unsigned y)
 {
-	return (x >= 700) && (x <= 1800) && (y <= 2000) && (y >= 1436);
+	return (x >= 700) && (x <= 1800) && (y <= 1800) && (y >= 1436);
 }
 
 bool Blackbody_GUI::isConfig(const unsigned x, const unsigned y)

@@ -16,7 +16,7 @@ class Blackbody
 	// config settings
 	bool ipMode = 1; // 1 = DHCP, 0 = STATIC
 	ip_address address = ip_address(192, 168, 200, 161);
-  float readyWindow = 0.0;
+  float readyWindow = 0.1;
 };
 
 #endif  // BLACKBODY_H_

@@ -56,6 +56,9 @@ void setup()
 
 void loop()
 {
+	prevButtonState = buttonState;
+	prevStatus = GUI.blackbody.status;
+
 	// check for response from blackbody SDC
 	if (Serial.available()) // changed from Serial5 to Serial
 							// to test with other screen.
@@ -67,12 +70,12 @@ void loop()
 
 	// every 1s request the source plate
 	// temperature and BB status over UART
-	if (millis() - prevTime > 1000)
+	if (millis() - prevTime > 250)
 	{
 		prevTime = millis();
-		//Serial.println("M2");
-		//Serial.println("MS");
-		//Serial.println("ML");
+		Serial.println("M2");
+		Serial.println("MS");
+		Serial.println("ML");
 		Serial.println("MADDR");
 	}
 
@@ -90,8 +93,7 @@ void loop()
 	// Serial.println(")");
 	// AG
 
-	prevButtonState = buttonState;
-	prevStatus = GUI.blackbody.status;
+	unsigned pressureThreshold = 150;
 
 	switch (GUI.currPage)
 	{
@@ -99,7 +101,7 @@ void loop()
 											Home Page
 	***************************************************************************************/
 	case homePage:
-		if (z1 > 3) // ignore weak presses
+		if (z1 > pressureThreshold) // ignore weak presses
 					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseHomePageTouch(x, y);
@@ -139,7 +141,7 @@ void loop()
 											Config Page
 	***************************************************************************************/
 	case configPage:
-		if (z1 > 3) // ignore weak presses
+		if (z1 > pressureThreshold) // ignore weak presses
 					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseConfigPageTouch(x, y);
@@ -156,7 +158,7 @@ void loop()
 										Address Adjust Page
 	***************************************************************************************/
 	case addressAdjustPage:
-		if (z1 > 3) // ignore weak presses
+		if (z1 > pressureThreshold) // ignore weak presses
 					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseAddressPageTouch(x, y);
@@ -173,7 +175,7 @@ void loop()
 										Window Adjust Page
 	***************************************************************************************/
 	case windowAdjustPage:
-		if (z1 > 3) // ignore weak presses
+		if (z1 > pressureThreshold) // ignore weak presses
 					// (strong press reads about 200-500)
 		{
 			buttonState = GUI.parseWindowPageTouch(x, y);

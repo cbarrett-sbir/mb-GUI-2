@@ -21,20 +21,27 @@ while True:
 		#print("Setpoint", setPoint)
 
 	elif cmd[:2] == b'MS':
-		if temp < (setPoint - 0.05) or temp > (setPoint + 0.05):
+		if temp < (setPoint - readyWindow) or temp > (setPoint + readyWindow):
 			cntrlr.write(("SR= 16\n").encode())
+		else:
+			cntrlr.write(("SR= 0\n").encode())
 
+	# request for ready window
 	elif cmd[:2] == b'ML':
-		print("replying with ready window...")
 		cntrlr.write(("L= {:.1f}\n".format(readyWindow)).encode())
+		print("master: ".encode() + ("L= {:.1f}\n".format(readyWindow)).encode())
 
+	# set ready window
+	elif cmd[:1] == b'L':
+		readyWindow = float(cmd[2: -2])
+
+	# request for ip address
 	elif cmd[:5] == b'MADDR':
-		# cntrlr.write(("ADDR= {:.1f}\n".format(address)).encode())
 		cntrlr.write((("ADDR= {}\n".format(address)).encode()))
-		print("master: ".encode() + (("ADDR= {}\r\n".format(address)).encode()))
+		print("master: ".encode() + ("ADDR= {}\r\n".format(address)).encode())
 	
+	# set ip address
 	elif cmd[:4] == b'ADDR':
-		# cntrlr.write(("ADDR= {:.1f}\n".format(address)).encode())
 		address = cmd.decode()[5:-1]
 
 	else:	# default
