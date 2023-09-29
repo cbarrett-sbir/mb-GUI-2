@@ -817,7 +817,10 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 
 	default:
 	{
-		if (currPage == windowAdjustPage)
+		
+	}
+	}
+	if (currPage == windowAdjustPage)
 		{
 			if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.01))
 			{
@@ -831,9 +834,6 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 			}
 			
 		}
-		break;
-	}
-	}
 }
 
 void Blackbody_GUI::drawStatus(const unsigned status)
