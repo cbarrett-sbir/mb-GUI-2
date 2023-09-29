@@ -4,7 +4,7 @@ import time
 cntrlr = serial.Serial('COM5', 19200, timeout=None)
 setPoint = 10.0
 readyWindow = 0.1
-address = "192.168.200.333"
+address = "192.168.200.101"
 print(setPoint)
 temp = 0.0
 while True:

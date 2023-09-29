@@ -315,6 +315,8 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		const unsigned middle_left = 160 - (tft.textWidth("000.111.222.333") / 2);
 
 		tft.drawString(blackbody.address.getAddress(), middle_left, 120);
+		// draw byte selection indicator
+		currByteSelected = 3;
 		tft.drawWideLine(middle_left + tft.textWidth("000.111.222."), 140, middle_left + tft.textWidth("000.111.222.333"), 140, 4, TFT_BLACK, TFT_WHITE);
 		tft.unloadFont();
 
@@ -654,7 +656,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		if (prospectiveIpAddress == blackbody.address)
 		{
 			tft.setTextColor(TFT_BLACK, TFT_WHITE);
-			tft.drawString(prospectiveIpAddress.getAddress(), middle_left, 120);
+			tft.drawString(blackbody.address.getAddress(), middle_left, 120);
 		}
 		else
 		{

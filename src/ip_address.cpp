@@ -14,7 +14,7 @@ const char * ip_address::getAddress()
     ostr << std::setfill('0') << std::setw(3) << address[0] << '.'
          << std::setfill('0') << std::setw(3) << address[1] << '.'
          << std::setfill('0') << std::setw(3) << address[2] << '.'
-         << std::setfill('0') << std::setw(3) << address[3];
+         << std::setfill('0') << std::setw(3) << address[3] << "\n";
 
     return ostr.str().c_str();
 }
