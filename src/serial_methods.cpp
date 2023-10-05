@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include "serial_methods.h"
+#include <sstream>
 
 void readSerial(std::string& buffer, Blackbody& blackbody)
 {
@@ -41,5 +42,15 @@ void parseCommand(std::string s, Blackbody& blackbody)
 	else if(response == "ADDR")
 	{
 		blackbody.address = ip_address(std::stoi(value.substr(0, 3)), std::stoi(value.substr(4, 3)), std::stoi(value.substr(8, 3)), std::stoi(value.substr(12, 3)));
+	}
+	else if(response == "ERRDEV")
+	{
+		// extracts first device name from errdev query
+		std::istringstream iss(value);
+		std::getline(iss, blackbody.errorDevice, ' ');
+	}
+	else if(response == "ERRSTR")
+	{
+		blackbody.errorString = value;
 	}
 }

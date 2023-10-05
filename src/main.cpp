@@ -193,7 +193,17 @@ void loop()
 											Error Page
 	***************************************************************************************/
 	case errorPage:
+		if (z1 > pressureThreshold) // ignore weak presses
+					// (strong press reads about 200-500)
+		{
+			buttonState = GUI.parseErrorPageTouch(x, y);
+		}
+		else
+		{
+			buttonState = nonePressed;
+		}
 
+		GUI.updateErrorPageState(buttonState, prevButtonState);
 		break;
 	}
 }

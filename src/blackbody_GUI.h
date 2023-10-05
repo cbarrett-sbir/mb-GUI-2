@@ -27,7 +27,9 @@ enum ButtonState
 	byteZeroPressed,
 	byteOnePressed,
 	byteTwoPressed,
-	byteThreePressed
+	byteThreePressed,
+	nextPressed,
+	errorPressed
 };
 enum Page
 {
@@ -54,11 +56,13 @@ public:
 	void updateConfigPageState(ButtonState buttonState, ButtonState prevButtonState);
 	void updateAddressAdjustPageState(ButtonState buttonState, ButtonState prevButtonState);
 	void updateWindowAdjustPageState(ButtonState buttonState, ButtonState prevButtonState);
+	void updateErrorPageState(ButtonState buttonState, ButtonState prevButtonState);
 
 	ButtonState parseHomePageTouch(const unsigned x, const unsigned y),
 				parseConfigPageTouch(const unsigned x, const unsigned y),
 				parseAddressPageTouch(const unsigned x, const unsigned y),
-				parseWindowPageTouch(const unsigned x, const unsigned y);
+				parseWindowPageTouch(const unsigned x, const unsigned y),
+				parseErrorPageTouch(const unsigned x, const unsigned y);
 
 	void drawStatus(const unsigned status),
 		 drawLocked(),
@@ -79,6 +83,8 @@ private:
 	ip_address prospectiveIpAddress = ip_address(192, 168, 200, 161);
 	ip_address prevIpAddress = ip_address(192, 168, 200, 161);
 	unsigned currByteSelected = 3;
+
+	bool requestedErrorString = false;
 
 	// guard conditions used to implement the button hold auto-increment/decrement feature
 	bool incrHeld = false;
@@ -105,18 +111,11 @@ private:
 	TFT_eSprite checkmark = TFT_eSprite(&tft);
 	TFT_eSprite downArrow = TFT_eSprite(&tft);
 
-	// home page
-	bool isIncrButton(const unsigned x, const unsigned y),
-		 isDecrButton(const unsigned x, const unsigned y),
-		 isSetpointNumber(const unsigned x, const unsigned y),
-		 isUnlockRegion(const unsigned x, const unsigned y),
-		 isError(const unsigned x, const unsigned y),
-		 isConfig(const unsigned x, const unsigned y);
-
 	// config page
 	void drawIPMode(bool mode, const unsigned x, const unsigned y);
 	void drawAddress(const unsigned x, const unsigned y, const unsigned color);
 	void drawReadyWindow(const unsigned x, const unsigned y);
+	void drawErrorScreen();
 
 	bool is_equal(float f1, float f2, float epsilon);
 };

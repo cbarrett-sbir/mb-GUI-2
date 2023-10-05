@@ -2,9 +2,12 @@ import serial
 import time
 
 cntrlr = serial.Serial('COM5', 19200, timeout=None)
-setPoint = 10.0
+setPoint = 0.0
 readyWindow = 0.1
 address = "192.168.200.101"
+errdev = "0xf"
+errorString = "BAD ERROR"
+status = 32;
 print(setPoint)
 temp = 0.0
 while True:
@@ -24,7 +27,7 @@ while True:
 		if temp < (setPoint - readyWindow) or temp > (setPoint + readyWindow):
 			cntrlr.write(("SR= 16\n").encode())
 		else:
-			cntrlr.write(("SR= 0\n").encode())
+			cntrlr.write(("SR= {}\n".format(status)).encode())
 
 	# request for ready window
 	elif cmd[:2] == b'ML':
@@ -43,6 +46,17 @@ while True:
 	# set ip address
 	elif cmd[:4] == b'ADDR':
 		address = cmd.decode()[5:-1]
+
+	elif cmd[:7] == b'MERRDEV':
+		cntrlr.write((("ERRDEV= {}\n".format(errdev)).encode()))
+		print("master: ".encode() + ("ERRDEV= {}\r\n".format(errdev)).encode())
+
+	elif cmd[:7] == b'MERRSTR':
+		cntrlr.write((("ERRSTR= {}\n".format(errorString)).encode()))
+		print("master: ".encode() + ("ERRSTR= {}\r\n".format(errorString)).encode())
+
+	elif cmd[:7] == b'ERRCLR':
+		print("master: ".encode() + ("ERRSTR= {}\r\n".format(errorString)).encode())
 
 	else:	# default
 		#print(cmd)

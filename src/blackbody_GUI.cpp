@@ -15,32 +15,27 @@
 // home page 
 ButtonState Blackbody_GUI::parseHomePageTouch(const unsigned x, const unsigned y)
 {
-	if (isIncrButton(x, y) && !locked)
+	if ((x >= 2385) && (x <= 3600) && (y <= 3485) && (y >= 2640) && !locked)
 	{
 		return incrPressed;
 	}
-	else if (isDecrButton(x, y) && !locked)
+	else if ((x >= 2385) && (x <= 3600) && (y <= 1360) && (y >= 460) && !locked)
 	{
 		return decrPressed;
 	}
-	else if (isSetpointNumber(x, y))
+	else if ((x >= 2160) && (x <= 3715) && (y <= 2400) && (y >= 1650))
 	{
 		return setpointNumberPressed;
 	}
-	else if (isUnlockRegion(x, y) && locked)
+	else if ((x >= 2200) && (x <= 3715) && (y <= 3700) && (y >= 300) && locked)
 	{
 		return unlockRegionPressed;
 	}
-	else if (isError(x, y) && blackbody.status == 32)
+	else if ((x >= 700) && (x <= 1800) && (y <= 1800) && (y >= 1436) && blackbody.status == 32)
 	{
-		tft.fillScreen(TFT_WHITE); // splash screen
-		tft.setTextDatum(MC_DATUM);
-		tft.setTextColor(TFT_RED, TFT_WHITE, true);
-		tft.drawString("ERROR PAGE", 160, 120, 4);
-		delay(5000);
-		initDisplayGraphics();
+		return errorPressed;
 	}
-	else if (isConfig(x, y))
+	else if ((x >= 700) && (x <= 1800) && (y <= 1300) && (y >= 830))
 	{
 		return configPressed;
 	}
@@ -190,6 +185,17 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			currPage = configPage;
 			delay(150);
 		}
+	}
+
+	case errorPressed:
+	{
+		if (prevButtonState == nonePressed)
+		{
+			Serial.println("MERRDEV");
+			drawErrorScreen();
+			currPage = errorPage;
+		}
+		break;
 	}
 
 	default:			  // runs if currState = nonePressed (or some other uncaught state)
@@ -830,6 +836,87 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 	}
 }
 
+// error page
+ButtonState Blackbody_GUI::parseErrorPageTouch(const unsigned x, const unsigned y)
+{
+	if ((x >= 2280) && (x <= 3666) && (y <= 1350) && (y >= 430))
+	{
+		return nextPressed;
+	}
+	else if ((x >= 500) && (x <= 1860) && (y <= 1350) && (y >= 430))
+	{
+		return backPressed;
+	}
+	else
+	{
+		return nonePressed;
+	}
+}
+
+void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState prevButtonState)
+{
+	// if (blackbody.status == 32)
+	// {
+	// 	Serial.println("MERRDEV");
+	// 	Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
+	// 	
+	// }
+
+	if (blackbody.errorDevice != "" && !requestedErrorString)
+	{
+		Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
+		requestedErrorString = true;
+	}
+
+	if(blackbody.errorString != "")
+	{
+		tft.drawString(blackbody.errorString.c_str(), 160, 120, 4);
+	}
+
+	switch (buttonState)
+	{
+		case nextPressed:
+		if (prevButtonState == nonePressed)
+		{
+			Serial.println(("ERRCLR " + blackbody.errorDevice).c_str());
+			requestedErrorString = false;
+			blackbody.errorString = "";
+			blackbody.errorDevice = "";
+			Serial.println("MS");
+			Serial.println("MERRDEV"); // this may cause a problem because it queries when there may not be an error
+		}
+		break;
+
+		case backPressed:
+		{
+			if (prevButtonState != nonePressed)
+			{
+				break;
+			}
+			tft.fillScreen(TFT_WHITE);
+
+			drawSetPointRegion();
+			drawConfigButton();
+
+			if (locked)
+			{
+				drawLocked();
+			}
+			else
+			{
+				drawUnlocked();
+			}
+
+			drawStatus(blackbody.status);
+			currPage = homePage;
+			break;
+		}
+		
+		default:
+		break;
+	}
+}
+
 void Blackbody_GUI::drawStatus(const unsigned status)
 {
 	unsigned xPos = 80;
@@ -975,35 +1062,6 @@ void Blackbody_GUI::drawBootScreen()
 }
 
 // private
-bool Blackbody_GUI::isIncrButton(const unsigned x, const unsigned y)
-{
-	return (x >= 2385) && (x <= 3600) && (y <= 3485) && (y >= 2640);
-}
-
-bool Blackbody_GUI::isDecrButton(const unsigned x, const unsigned y)
-{
-	return (x >= 2385) && (x <= 3600) && (y <= 1360) && (y >= 460);
-}
-
-bool Blackbody_GUI::isSetpointNumber(const unsigned x, const unsigned y)
-{
-	return (x >= 2160) && (x <= 3715) && (y <= 2400) && (y >= 1650);
-}
-
-bool Blackbody_GUI::isUnlockRegion(const unsigned x, const unsigned y)
-{
-	return (x >= 2200) && (x <= 3715) && (y <= 3700) && (y >= 300);
-}
-
-bool Blackbody_GUI::isError(const unsigned x, const unsigned y)
-{
-	return (x >= 700) && (x <= 1800) && (y <= 1800) && (y >= 1436);
-}
-
-bool Blackbody_GUI::isConfig(const unsigned x, const unsigned y)
-{
-	return (x >= 700) && (x <= 1800) && (y <= 1300) && (y >= 830);
-}
 
 void Blackbody_GUI::drawIPMode(const bool mode, const unsigned x, const unsigned y)
 {
@@ -1052,4 +1110,16 @@ bool Blackbody_GUI::is_equal(float f1, float f2, float epsilon)
         if(abs(f1-f2)<epsilon)
                 return true;
         return false;
+}
+
+void Blackbody_GUI::drawErrorScreen()
+{
+	tft.fillScreen(TFT_WHITE); // splash screen
+	tft.setTextDatum(MC_DATUM);
+	tft.setTextColor(TFT_RED, TFT_WHITE, true);
+	tft.drawString("ERROR PAGE", 160, 120, 4);
+	tft.drawSmoothRoundRect(20, 165, 6, 5, 120, 60, TFT_BLACK);
+	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_BLACK);
+	currPage = errorPage;
+	delay(150);
 }

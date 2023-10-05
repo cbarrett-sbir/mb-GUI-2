@@ -1,8 +1,6 @@
 #ifndef IP_ADDRESS_H_
 #define IP_ADDRESS_H_
 
-#include <string>
-
 class ip_address
 {
     public:
