@@ -41,6 +41,7 @@ void parseCommand(std::string s, Blackbody& blackbody)
 	}
 	else if(response == "ADDR")
 	{
+		Serial.println(("*" + value + "*").c_str());
 		blackbody.address = ip_address(std::stoi(value.substr(0, 3)), std::stoi(value.substr(4, 3)), std::stoi(value.substr(8, 3)), std::stoi(value.substr(12, 3)));
 	}
 	else if(response == "ERRDEV")

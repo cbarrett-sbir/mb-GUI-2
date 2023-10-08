@@ -1,6 +1,7 @@
 #include <TFT_eSPI.h> // graphics
 #include <WireIMXRT.h>
 #include <cstring>
+#include <sstream>
 
 #include "blackbody_GUI.h"
 
@@ -31,7 +32,7 @@ ButtonState Blackbody_GUI::parseHomePageTouch(const unsigned x, const unsigned y
 	{
 		return unlockRegionPressed;
 	}
-	else if ((x >= 700) && (x <= 1800) && (y <= 1800) && (y >= 1436) && blackbody.status == 32)
+	else if ((x >= 700) && (x <= 1800) && (y <= 2420) && (y >= 1750) && blackbody.status == 32)
 	{
 		return errorPressed;
 	}
@@ -185,6 +186,7 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			currPage = configPage;
 			delay(150);
 		}
+		break;
 	}
 
 	case errorPressed:
@@ -845,6 +847,10 @@ ButtonState Blackbody_GUI::parseErrorPageTouch(const unsigned x, const unsigned 
 	}
 	else if ((x >= 500) && (x <= 1860) && (y <= 1350) && (y >= 430))
 	{
+		return fetchErrorPressed;
+	}
+	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
+	{
 		return backPressed;
 	}
 	else
@@ -855,35 +861,40 @@ ButtonState Blackbody_GUI::parseErrorPageTouch(const unsigned x, const unsigned 
 
 void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState prevButtonState)
 {
-	// if (blackbody.status == 32)
-	// {
-	// 	Serial.println("MERRDEV");
-	// 	Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
-	// 	
-	// }
-
-	if (blackbody.errorDevice != "" && !requestedErrorString)
+	if (blackbody.errorDevice != "")
 	{
+		ERROR_CLEARED = false;
+		tft.setTextDatum(TL_DATUM);
+		tft.setTextWrap(true, true);
+		tft.drawString(blackbody.errorDevice.c_str(), 270, 30, 4);
 		Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
-		requestedErrorString = true;
+		currErrorDevice = blackbody.errorDevice;
+		blackbody.errorDevice = "";
 	}
 
 	if(blackbody.errorString != "")
 	{
-		tft.drawString(blackbody.errorString.c_str(), 160, 120, 4);
+		tft.setTextDatum(TL_DATUM);
+		tft.setTextWrap(true, true);
+		drawStringWordWrap(blackbody.errorString, 20, 15, 80);
+		blackbody.errorString = "";
 	}
 
 	switch (buttonState)
 	{
 		case nextPressed:
+		if (prevButtonState == nonePressed && !ERROR_CLEARED)
+		{
+			Serial.println(("ERRCLR " + currErrorDevice).c_str());
+			ERROR_CLEARED = true;
+			Serial.println("MERRDEV");
+		}
+		break;
+
+		case fetchErrorPressed:
 		if (prevButtonState == nonePressed)
 		{
-			Serial.println(("ERRCLR " + blackbody.errorDevice).c_str());
-			requestedErrorString = false;
-			blackbody.errorString = "";
-			blackbody.errorDevice = "";
-			Serial.println("MS");
-			Serial.println("MERRDEV"); // this may cause a problem because it queries when there may not be an error
+			Serial.println("MERRDEV");
 		}
 		break;
 
@@ -1117,9 +1128,36 @@ void Blackbody_GUI::drawErrorScreen()
 	tft.fillScreen(TFT_WHITE); // splash screen
 	tft.setTextDatum(MC_DATUM);
 	tft.setTextColor(TFT_RED, TFT_WHITE, true);
-	tft.drawString("ERROR PAGE", 160, 120, 4);
 	tft.drawSmoothRoundRect(20, 165, 6, 5, 120, 60, TFT_BLACK);
 	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_BLACK);
+
+	// back buttom
+	backArrow.pushSprite(24, 24);
+	tft.drawSmoothRoundRect(15, 15, 6, 5, 50, 50, TFT_BLACK);
+
 	currPage = errorPage;
 	delay(150);
+}
+
+void Blackbody_GUI::drawStringWordWrap(const std::string& input, const int maxLineLength, const int x, const int y)
+{
+    std::istringstream in(input);
+    size_t current = 0;
+    std::string word;
+    std::string result = "";
+	unsigned _y = y;
+
+    while (in >> word) 
+    {
+        if (current + word.size() > maxLineLength)
+        {
+            tft.drawString(result.c_str(), x, _y, 4);
+			_y += 20 + 5; // 20 = text height
+            result = "";
+            current = 0;
+        }
+        result += word + ' ';
+        current += word.size() + 1;
+    }
+    tft.drawString(result.c_str(), x, _y, 4);
 }

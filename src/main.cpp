@@ -72,11 +72,17 @@ void loop()
 	// temperature and BB status over UART
 	if (millis() - prevTime > 250)
 	{
-		prevTime = millis();
-		Serial.println("M2");
+		if (GUI.currPage == configPage)
+		{
+			Serial.println("ML");
+			Serial.println("MADDR");
+		}
+		if (GUI.currPage == homePage)
+		{
+			Serial.println("M2");
+		}
 		Serial.println("MS");
-		Serial.println("ML");
-		Serial.println("MADDR");
+		prevTime = millis();
 	}
 
 	// read touch data from controller
