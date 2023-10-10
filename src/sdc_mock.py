@@ -1,12 +1,14 @@
 import serial
 import time
 
-cntrlr = serial.Serial('COM5', 19200, timeout=None)
+#cntrlr = serial.Serial('COM5', 19200, timeout=None)
+cntrlr = serial.Serial('/dev/tty.usbmodem93491801', 19200, timeout=None)
 setPoint = 0.0
 readyWindow = 0.1
 address = "192.168.200.101"
-errdev = "0xf"
-errorString = "BAD ERROR"
+i = 1
+errdev = "0x" + str(i)
+errorString = "ERROR {}".format(i)
 status = 32;
 print(setPoint)
 temp = 0.0
@@ -26,8 +28,10 @@ while True:
 	elif cmd[:2] == b'MS':
 		if temp < (setPoint - readyWindow) or temp > (setPoint + readyWindow):
 			cntrlr.write(("SR= 16\n").encode())
+			print("master: ".encode() + ("SR= {}\n".format(16)).encode())
 		else:
 			cntrlr.write(("SR= {}\n".format(status)).encode())
+			print("master: ".encode() + ("SR= {}\n".format(status)).encode())
 
 	# request for ready window
 	elif cmd[:2] == b'ML':
@@ -48,15 +52,18 @@ while True:
 		address = cmd.decode()[5:-1]
 
 	elif cmd[:7] == b'MERRDEV':
-		cntrlr.write((("ERRDEV= {}\n".format(errdev)).encode()))
-		print("master: ".encode() + ("ERRDEV= {}\r\n".format(errdev)).encode())
+		cntrlr.write((("ERRDEV= {}\n".format("0x" + str(i))).encode()))
+		print("master: ".encode() + ("ERRDEV= {}\r\n".format("0x" + str(i))).encode())
 
 	elif cmd[:7] == b'MERRSTR':
-		cntrlr.write((("ERRSTR= {}\n".format(errorString)).encode()))
-		print("master: ".encode() + ("ERRSTR= {}\r\n".format(errorString)).encode())
+		cntrlr.write((("ERRSTR= {}\n".format("ERROR BB SOURCE {} NOT FOUND".format(i))).encode()))
+		print("master: ".encode() + ("ERRSTR= {}\n".format("ERROR BB SOURCE {} NOT FOUND".format(i))).encode())
+		
 
-	elif cmd[:7] == b'ERRCLR':
-		print("master: ".encode() + ("ERRSTR= {}\r\n".format(errorString)).encode())
+	elif cmd[:6] == b'ERRCLR':
+		i += 1
+		if (i > 4):
+			status = 0
 
 	else:	# default
 		#print(cmd)

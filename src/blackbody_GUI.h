@@ -29,7 +29,8 @@ enum ButtonState
 	byteTwoPressed,
 	byteThreePressed,
 	nextPressed,
-	errorPressed
+	errorPressed,
+	fetchErrorPressed
 };
 enum Page
 {
@@ -84,6 +85,9 @@ private:
 	ip_address prevIpAddress = ip_address(192, 168, 200, 161);
 	unsigned currByteSelected = 3;
 
+	std::string currErrorDevice = "";
+	bool ERROR_CLEARED = false;
+
 	bool requestedErrorString = false;
 
 	// guard conditions used to implement the button hold auto-increment/decrement feature
@@ -116,6 +120,7 @@ private:
 	void drawAddress(const unsigned x, const unsigned y, const unsigned color);
 	void drawReadyWindow(const unsigned x, const unsigned y);
 	void drawErrorScreen();
+	void drawStringWordWrap(const std::string& input, const int maxLineLength, const int x, const int y);
 
 	bool is_equal(float f1, float f2, float epsilon);
 };
