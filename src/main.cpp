@@ -34,7 +34,6 @@ ButtonState buttonState = nonePressed;
 ButtonState prevButtonState = nonePressed;
 
 unsigned long prevTime = 0;
-unsigned prevStatus = 0;
 // buffer for incoming serial data
 std::string buffer = "";
 
@@ -57,7 +56,7 @@ void setup()
 void loop()
 {
 	prevButtonState = buttonState;
-	prevStatus = GUI.blackbody.status;
+	GUI.prevStatus = GUI.blackbody.status;
 
 	// check for response from blackbody SDC
 	if (Serial.available()) // changed from Serial5 to Serial
@@ -132,7 +131,7 @@ void loop()
 			GUI.locked = false;
 		}
 
-		if (GUI.blackbody.status != prevStatus)
+		if (GUI.blackbody.status != GUI.prevStatus)
 		{
 			GUI.drawStatus(GUI.blackbody.status);
 		}

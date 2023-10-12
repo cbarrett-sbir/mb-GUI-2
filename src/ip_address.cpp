@@ -8,7 +8,7 @@ ip_address::ip_address(unsigned b0, unsigned b1, unsigned b2, unsigned b3) : add
 {
 }
 
-const char * ip_address::getAddress()
+std::string ip_address::getAddress()
 {
     std::ostringstream ostr;
     ostr << std::setfill('0') << std::setw(3) << address[0] << '.'
@@ -16,15 +16,15 @@ const char * ip_address::getAddress()
          << std::setfill('0') << std::setw(3) << address[2] << '.'
          << std::setfill('0') << std::setw(3) << address[3] << "\n";
 
-    return ostr.str().c_str();
+    return ostr.str();
 }
 
-const char * ip_address::getAddressByte(const unsigned byteIndex)
+std::string ip_address::getAddressByte(const unsigned byteIndex)
 {
     std::ostringstream ostr;
-    ostr << std::setfill('0') << std::setw(3) << address[byteIndex] << std::endl;
+    ostr << std::setfill('0') << std::setw(3) << address[byteIndex] << "\n";
 
-    return ostr.str().c_str();
+    return ostr.str();
 }
 
 void ip_address::incrByte(const unsigned byteIndex)

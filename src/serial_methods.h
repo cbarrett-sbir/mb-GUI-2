@@ -6,6 +6,6 @@
 #include "blackbody.h"
 
 void readSerial(std::string& buffer, Blackbody& blackbody);
-void parseCommand(std::string buffer, Blackbody& blackbody);
+void parseCommand(const std::string& buffer, Blackbody& blackbody);
 
 #endif  // MB_SERIAL_METHODS_H_

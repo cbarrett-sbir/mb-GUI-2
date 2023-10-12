@@ -1,6 +1,8 @@
 #ifndef IP_ADDRESS_H_
 #define IP_ADDRESS_H_
 
+#include <string>
+
 class ip_address
 {
     public:
@@ -11,8 +13,8 @@ class ip_address
 
     void incrByte(const unsigned byteIndex);
     void decrByte(const unsigned byteIndex);
-    const char * getAddress();
-    const char * getAddressByte(const unsigned byteIndex);
+    std::string getAddress();
+    std::string getAddressByte(const unsigned byteIndex);
 
     private:
     unsigned address[4];

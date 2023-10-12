@@ -52,6 +52,7 @@ public:
 	unsigned targetPointColor = TFT_LIGHTGREY;
 	bool locked = true;       // controls if set-point is greyed out
 	Page currPage = homePage; // organizes pages
+	unsigned prevStatus = blackbody.status;
 
 	void updateHomePageState(ButtonState buttonState, ButtonState prevButtonState);
 	void updateConfigPageState(ButtonState buttonState, ButtonState prevButtonState);
@@ -88,8 +89,6 @@ private:
 	std::string currErrorDevice = "";
 	bool ERROR_CLEARED = false;
 
-	bool requestedErrorString = false;
-
 	// guard conditions used to implement the button hold auto-increment/decrement feature
 	bool incrHeld = false;
 	bool decrHeld = false;
@@ -120,7 +119,7 @@ private:
 	void drawAddress(const unsigned x, const unsigned y, const unsigned color);
 	void drawReadyWindow(const unsigned x, const unsigned y);
 	void drawErrorScreen();
-	void drawStringWordWrap(const std::string& input, const int maxLineLength, const int x, const int y);
+	void drawStringWordWrap(const std::string& input, const size_t maxLineLength, const int x, const int y);
 
 	bool is_equal(float f1, float f2, float epsilon);
 };

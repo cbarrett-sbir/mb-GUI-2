@@ -322,7 +322,7 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		tft.loadFont(AA_FONT_LARGE);
 		const unsigned middle_left = 160 - (tft.textWidth("000.111.222.333") / 2);
 
-		tft.drawString(blackbody.address.getAddress(), middle_left, 120);
+		tft.drawString(blackbody.address.getAddress().c_str(), middle_left, 120);
 		// draw byte selection indicator
 		currByteSelected = 3;
 		tft.drawWideLine(middle_left + tft.textWidth("000.111.222."), 140, middle_left + tft.textWidth("000.111.222.333"), 140, 4, TFT_BLACK, TFT_WHITE);
@@ -648,7 +648,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 			break;
 		}
 		Serial.print("ADDR ");
-		Serial.println(prospectiveIpAddress.getAddress());
+		Serial.println(prospectiveIpAddress.getAddress().c_str());
 		break;
 	}
 
@@ -664,12 +664,12 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		if (prospectiveIpAddress == blackbody.address)
 		{
 			tft.setTextColor(TFT_BLACK, TFT_WHITE);
-			tft.drawString(blackbody.address.getAddress(), middle_left, 120);
+			tft.drawString(blackbody.address.getAddress().c_str(), middle_left, 120);
 		}
 		else
 		{
 			tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
-			tft.drawString(prospectiveIpAddress.getAddress(), middle_left, 120);
+			tft.drawString(prospectiveIpAddress.getAddress().c_str(), middle_left, 120);
 		}
 	}
 }
@@ -875,9 +875,18 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 	if(blackbody.errorString != "")
 	{
 		tft.setTextDatum(TL_DATUM);
-		tft.setTextWrap(true, true);
 		drawStringWordWrap(blackbody.errorString, 20, 15, 80);
 		blackbody.errorString = "";
+	}
+
+	// clear error messages
+	if (blackbody.status == 0 && prevStatus != 0)
+	{
+		tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_LIGHTGREY);
+		tft.fillRect(15, 80, 290, 84, TFT_WHITE);
+		tft.setTextDatum(MC_DATUM);
+		tft.setTextColor(TFT_BLACK, TFT_WHITE);
+		tft.drawString("All errors cleared", 160, 120, 4);
 	}
 
 	switch (buttonState)
@@ -1102,7 +1111,7 @@ void Blackbody_GUI::drawAddress(const unsigned x, const unsigned y, const unsign
 	tft.setTextDatum(TL_DATUM);
 	tft.setTextColor(color, TFT_WHITE, true);
 	tft.setTextPadding(tft.textWidth("192.168.100.001", GFXFF));
-	tft.drawString(blackbody.address.getAddress(), x + 15, y + 35, GFXFF);
+	tft.drawString(blackbody.address.getAddress().c_str(), x + 15, y + 35, GFXFF);
 	tft.drawRoundRect(x, y + 25, 220, 40, 5, color);
 }
 
@@ -1128,7 +1137,6 @@ void Blackbody_GUI::drawErrorScreen()
 	tft.fillScreen(TFT_WHITE); // splash screen
 	tft.setTextDatum(MC_DATUM);
 	tft.setTextColor(TFT_RED, TFT_WHITE, true);
-	tft.drawSmoothRoundRect(20, 165, 6, 5, 120, 60, TFT_BLACK);
 	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_BLACK);
 
 	// back buttom
@@ -1139,25 +1147,25 @@ void Blackbody_GUI::drawErrorScreen()
 	delay(150);
 }
 
-void Blackbody_GUI::drawStringWordWrap(const std::string& input, const int maxLineLength, const int x, const int y)
+void Blackbody_GUI::drawStringWordWrap(const std::string& input, const size_t maxLineLength, const int x, const int y)
 {
     std::istringstream in(input);
-    size_t current = 0;
+    size_t currentLineLength = 0;
     std::string word;
     std::string result = "";
 	unsigned _y = y;
 
     while (in >> word) 
     {
-        if (current + word.size() > maxLineLength)
+        if (currentLineLength + word.size() > maxLineLength)
         {
             tft.drawString(result.c_str(), x, _y, 4);
 			_y += 20 + 5; // 20 = text height
             result = "";
-            current = 0;
+            currentLineLength = 0;
         }
         result += word + ' ';
-        current += word.size() + 1;
+        currentLineLength += word.size() + 1;
     }
     tft.drawString(result.c_str(), x, _y, 4);
 }
