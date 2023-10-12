@@ -8,7 +8,7 @@ low-cost blackbody product via a touchscreen GUI.
 
 DATE - Started 2023/02/12
 
-BUGS - Very infrequently a single touchController to incr/decr will
+BUGS - Infrequently a single touch to incr/decr will
 adjust the set-point > 1 unit.
 
 DESCRIPTION - This program operates on the simple grand
@@ -44,7 +44,7 @@ void setup()
 	GUI.tft.setSwapBytes(true); // Swap the color byte order when rendering
 	digitalWrite(BACKLIGHT_PWM, HIGH);
 
-	// GUI.drawBootScreen();
+	GUI.drawBootScreen();
 
 	GUI.initDisplayGraphics();
 	GUI.initTouchControl();
@@ -71,7 +71,7 @@ void loop()
 	// temperature and BB status over UART
 	if (millis() - prevTime > 250)
 	{
-		if (GUI.currPage == configPage)
+		if (GUI.currPage == configPage || GUI.currPage == addressAdjustPage || GUI.currPage == windowAdjustPage)
 		{
 			Serial.println("ML");
 			Serial.println("MADDR");
