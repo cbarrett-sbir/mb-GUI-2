@@ -1,8 +1,8 @@
 import serial
 import time
 
-cntrlr = serial.Serial('COM5', 19200, timeout=None)
-#cntrlr = serial.Serial('/dev/tty.usbmodem93491801', 19200, timeout=None)
+#cntrlr = serial.Serial('COM5', 19200, timeout=None)
+cntrlr = serial.Serial('/dev/tty.usbmodem93491801', 19200, timeout=None)
 setPoint = 0.0
 readyWindow = 0.1
 address = "192.168.200.101"
@@ -44,7 +44,7 @@ while True:
 	
 	# set ip address
 	elif cmd[:4] == b'ADDR':
-		address = cmd.decode()[5:-1]
+		address = cmd.decode()[6:-1]
 
 	elif cmd[:7] == b'MERRDEV':
 		cntrlr.write((("ERRDEV= {}\n".format(errdev)).encode()))

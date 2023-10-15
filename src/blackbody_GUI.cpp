@@ -647,7 +647,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		{
 			break;
 		}
-		Serial.print("ADDR ");
+		Serial.print("ADDR= ");
 		Serial.println(prospectiveIpAddress.getAddress().c_str());
 		break;
 	}
@@ -659,8 +659,10 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		decrEnable = false;
 		break;
 	}
+
 	if (currPage == addressAdjustPage)
-	{
+	{	
+		Serial.println("EQUAL");
 		if (prospectiveIpAddress == blackbody.address)
 		{
 			tft.setTextColor(TFT_BLACK, TFT_WHITE);

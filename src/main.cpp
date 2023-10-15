@@ -44,7 +44,7 @@ void setup()
 	GUI.tft.setSwapBytes(true); // Swap the color byte order when rendering
 	digitalWrite(BACKLIGHT_PWM, HIGH);
 
-	GUI.drawBootScreen();
+	//GUI.drawBootScreen();
 
 	GUI.initDisplayGraphics();
 	GUI.initTouchControl();
