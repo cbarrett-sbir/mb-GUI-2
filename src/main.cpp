@@ -137,8 +137,8 @@ void loop()
 		}
 
 		// finally, update sourcePlateTemp and setPoint on screen
-		GUI.drawSetPoint(GUI.targetPoint, GUI.targetPointColor, TFT_WHITE, 310, 125);
-		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, TFT_BLACK, TFT_WHITE,
+		GUI.drawSetPoint(GUI.targetPoint, 1, GUI.targetPointColor, TFT_WHITE, 310, 125);
+		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, 2, TFT_BLACK, TFT_WHITE,
 						 10 + GUI.tft.textWidth("111.1", 7), 50);
 		break;
 

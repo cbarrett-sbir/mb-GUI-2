@@ -18,7 +18,7 @@ while True:
 	if cmd == b'MDA\r\n':
 		cntrlr.write(("DA= {:.1f}\n".format(setPoint)).encode())
 
-	elif cmd == b'M2\r\n':
+	elif cmd == b'M2\r\n':	
 		cntrlr.write(("T2= {:.1f}\n".format(temp)).encode())
 
 	elif cmd[:3] == b'DA ':
@@ -51,7 +51,7 @@ while True:
 
 	elif cmd[:7] == b'MERRSTR':
 		if i == 1:
-			errstr = "ERS= SDC ADC Error\n"
+			errstr = "ERS= Unexpected end of message, no data found\n"
 		else:
 			errstr = "ERS= No command match\n"
 		cntrlr.write(errstr.encode())

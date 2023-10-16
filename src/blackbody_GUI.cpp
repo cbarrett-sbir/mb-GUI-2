@@ -77,7 +77,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 
 			if (millis() - timeIncrLastPressed >= autoRate)
 			{
-				targetPoint += 0.1;
+				if (targetPoint < 89.99)
+				{
+					targetPoint += 0.1;
+				}
 				timeIncrLastPressed = millis();
 			}
 			break;
@@ -88,7 +91,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			if (debug)
 				Serial.println("incrInitPress");
 			incrEnable = true;
-			targetPoint += 0.1;
+			if (targetPoint < 89.99)
+			{
+				targetPoint += 0.1;
+			}
 			timeIncrLastPressed = millis();
 			timeIncrFirstPressed = timeIncrLastPressed;
 		}
@@ -97,7 +103,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 		{
 			if (debug)
 				Serial.println("incrHeld");
-			targetPoint++;
+			if (targetPoint < 89.99)
+			{
+				targetPoint++;
+			}
 			incrHeld = true;
 			timeIncrLastPressed = millis();
 			timeIncrFirstPressed = timeIncrLastPressed;
@@ -123,7 +132,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			}
 			if (millis() - timeDecrLastPressed >= autoRate)
 			{
-				targetPoint -= 0.1;
+				if (targetPoint > 0.09)
+				{
+					targetPoint -= 0.1;
+				}
 				timeDecrLastPressed = millis();
 			}
 			break;
@@ -134,7 +146,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			if (debug)
 				Serial.println("decrInitPress");
 			decrEnable = true;
-			targetPoint -= 0.1;
+			if (targetPoint > 0.09)
+			{
+				targetPoint -= 0.1;
+			}
 			timeDecrLastPressed = millis();
 			timeDecrFirstPressed = timeDecrLastPressed;
 		}
@@ -143,7 +158,10 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 		{
 			if (debug)
 				Serial.println("decrHeld");
-			targetPoint--;
+			if (targetPoint > 0.09)
+			{
+				targetPoint--;
+			}
 			decrHeld = true;
 			timeDecrLastPressed = millis();
 			timeDecrFirstPressed = timeDecrLastPressed;
@@ -357,8 +375,7 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 
 		// incr/decr buttons
 		upArrowActive.pushSprite(185+44, 15+14);
-		tft.setPivot(185+44+32, 165+14);
-		downArrowActive.pushRotated(180);
+		downArrow.pushSprite(185+44, 240-(32+14+15));
 		tft.drawSmoothRoundRect(185, 15, 6, 5, 120, 60, TFT_BLACK);
 		tft.drawSmoothRoundRect(185, 165, 6, 5, 120, 60, TFT_BLACK);
 
@@ -398,7 +415,7 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		}
 
 		// ready window
-		if ( !is_equal(prevReadyWindow, blackbody.readyWindow, 0.01) )
+		if ( !is_equal(prevReadyWindow, blackbody.readyWindow, 0.001) )
 		{
 			drawReadyWindow(5, 165);
 			prevReadyWindow = blackbody.readyWindow;
@@ -770,7 +787,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 			}
 			if (millis() - timeDecrLastPressed >= autoRate)
 			{
-				if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
+				if (!is_equal(prospectiveReadyWindow, 0.1, 0.001))
 				{
 					prospectiveReadyWindow -= 0.1;
 				}
@@ -782,7 +799,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		if (prevButtonState == nonePressed) // initial press
 		{
 			decrEnable = true;
-			if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
+			if (!is_equal(prospectiveReadyWindow, 0.1, 0.001))
 			{
 				prospectiveReadyWindow -= 0.1;
 			}
@@ -792,7 +809,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		// button held
 		else if (decrEnable && (prevButtonState == decrPressed) && (millis() - timeDecrLastPressed > 1000))
 		{
-			if (!is_equal(prospectiveReadyWindow, 0.1, 0.01))
+			if (!is_equal(prospectiveReadyWindow, 0.1, 0.001))
 			{
 				prospectiveReadyWindow -= 0.1;
 			}
@@ -827,7 +844,7 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 	}
 	if (currPage == windowAdjustPage)
 	{
-		if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.01))
+		if (is_equal(prospectiveReadyWindow, blackbody.readyWindow, 0.001))
 		{
 			tft.setTextColor(TFT_BLACK, TFT_WHITE);
 			tft.drawFloat(blackbody.readyWindow, 1, 60, 120, 7);
@@ -847,10 +864,6 @@ ButtonState Blackbody_GUI::parseErrorPageTouch(const unsigned x, const unsigned 
 	{
 		return nextPressed;
 	}
-	else if ((x >= 500) && (x <= 1860) && (y <= 1350) && (y >= 430))
-	{
-		return fetchErrorPressed;
-	}
 	else if ((x >= 430) && (x <= 1000) && (y <= 3550) && (y >= 2750))
 	{
 		return backPressed;
@@ -867,16 +880,19 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 	{
 		ERROR_CLEARED = false;
 		tft.setTextDatum(TL_DATUM);
-		tft.setTextWrap(true, true);
+		tft.setTextColor(TFT_BLACK, TFT_WHITE);
+		tft.drawString("DEVICE:", 160, 30, 4);
+		tft.setTextColor(TFT_RED, TFT_WHITE);
 		tft.drawString(blackbody.errorDevice.c_str(), 270, 30, 4);
 		Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
 		currErrorDevice = blackbody.errorDevice;
 		blackbody.errorDevice = "";
 	}
 
-	if(blackbody.errorString != "")
+	if (blackbody.errorString != "")
 	{
 		tft.setTextDatum(TL_DATUM);
+		tft.setTextColor(TFT_RED, TFT_WHITE);
 		drawStringWordWrap(blackbody.errorString, 20, 15, 80);
 		blackbody.errorString = "";
 	}
@@ -886,9 +902,15 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 	{
 		tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_LIGHTGREY);
 		tft.fillRect(15, 80, 290, 84, TFT_WHITE);
+		tft.fillRect(15, 164, 30, 20, TFT_WHITE);
+		tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
+		tft.setTextDatum(ML_DATUM);
+		tft.setTextPadding(tft.textWidth("CLEAR"));
+		tft.drawString("CLEAR", 200, 198, 4);
 		tft.setTextDatum(MC_DATUM);
 		tft.setTextColor(TFT_BLACK, TFT_WHITE);
 		tft.drawString("All errors cleared", 160, 120, 4);
+		
 	}
 
 	switch (buttonState)
@@ -899,13 +921,7 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 			Serial.println(("ERRCLR " + currErrorDevice).c_str());
 			ERROR_CLEARED = true;
 			Serial.println("MERRDEV");
-		}
-		break;
-
-		case fetchErrorPressed:
-		if (prevButtonState == nonePressed)
-		{
-			Serial.println("MERRDEV");
+			tft.fillRect(15, 80, 290, 84, TFT_WHITE);
 		}
 		break;
 
@@ -1002,12 +1018,12 @@ void Blackbody_GUI::drawConfigButton()
 	tft.drawSmoothRoundRect(25, 170, 6, 5, 110, 34, TFT_BLACK);
 }
 
-void Blackbody_GUI::drawSetPoint(float number, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos)
+void Blackbody_GUI::drawSetPoint(float number, unsigned decimal_places, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos)
 {
-	tft.setTextPadding(tft.textWidth("111.1", 7));
+	tft.setTextPadding(tft.textWidth("11.11", 7));
 	tft.setTextDatum(MR_DATUM); // always right aligned
 	tft.setTextColor(fgColor, bgColor, true);
-	tft.drawFloat(number, 1, xPos, yPos, 7); // last argument (7) indicates font # 7 which is "7-seg digits"
+	tft.drawFloat(number, decimal_places, xPos, yPos, 7); // last argument (7) indicates font # 7 which is "7-seg digits"
 }
 
 void Blackbody_GUI::initDisplayGraphics()
@@ -1084,7 +1100,6 @@ void Blackbody_GUI::drawBootScreen()
 }
 
 // private
-
 void Blackbody_GUI::drawIPMode(const bool mode, const unsigned x, const unsigned y)
 {
 	if (mode) // 1 = DCHP, 0 =  STATIC
@@ -1139,7 +1154,13 @@ void Blackbody_GUI::drawErrorScreen()
 	tft.fillScreen(TFT_WHITE); // splash screen
 	tft.setTextDatum(MC_DATUM);
 	tft.setTextColor(TFT_RED, TFT_WHITE, true);
+
+	// clear button
 	tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_BLACK);
+	tft.setTextColor(TFT_BLACK, TFT_WHITE);
+	tft.setTextDatum(ML_DATUM);
+	tft.setTextPadding(tft.textWidth("CLEAR"));
+	tft.drawString("CLEAR", 200, 198, 4);
 
 	// back buttom
 	backArrow.pushSprite(24, 24);
@@ -1157,14 +1178,21 @@ void Blackbody_GUI::drawStringWordWrap(const std::string& input, const size_t ma
     std::string result = "";
 	unsigned _y = y;
 
+	int num_lines = 0;
     while (in >> word) 
     {
         if (currentLineLength + word.size() > maxLineLength)
         {
             tft.drawString(result.c_str(), x, _y, 4);
+			num_lines++;
 			_y += 20 + 5; // 20 = text height
             result = "";
             currentLineLength = 0;
+			if (num_lines > 2)
+			{
+				result = result.substr(0, maxLineLength-3) + ". . .";
+				break;
+			}
         }
         result += word + ' ';
         currentLineLength += word.size() + 1;

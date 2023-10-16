@@ -29,8 +29,7 @@ enum ButtonState
 	byteTwoPressed,
 	byteThreePressed,
 	nextPressed,
-	errorPressed,
-	fetchErrorPressed
+	errorPressed
 };
 enum Page
 {
@@ -72,7 +71,7 @@ public:
 		 drawSetPointRegion(),
 		 drawConfigButton(),
 		 drawBootScreen(),
-		 drawSetPoint(float number, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos),
+		 drawSetPoint(float number, unsigned decimal_points, uint16_t fgColor, uint16_t bgColor, uint16_t xPos, uint16_t yPos),
 		 initDisplayGraphics(),
 		 initTouchControl(),
 		 drawConfigScreen();
