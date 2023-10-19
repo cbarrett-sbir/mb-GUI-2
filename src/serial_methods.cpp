@@ -5,7 +5,7 @@
 
 void readSerial(std::string& buffer, Blackbody& blackbody)
 {
-	char c = Serial.read();
+	char c = Serial5.read();
 	if (c == '\n') // if end of line, parse the command
 	{
 		parseCommand(buffer, blackbody);
@@ -22,7 +22,7 @@ void parseCommand(const std::string& s, Blackbody& blackbody)
 	std::string response = s.substr(0, s.find("= "));
 	std::string value = s.substr(s.find("= ") + 2, std::string::npos);
 
-	Serial.println(("*" + s).c_str());
+	//Serial.println(("*" + s).c_str());
 
 	if(response == "T2")
 	{
@@ -42,7 +42,6 @@ void parseCommand(const std::string& s, Blackbody& blackbody)
 	}
 	else if(response == "ADDR")
 	{
-		Serial.println(("***" + value).c_str());
 		blackbody.address = ip_address(std::stoi(value.substr(0, 3)), std::stoi(value.substr(4, 3)), std::stoi(value.substr(8, 3)), std::stoi(value.substr(12, 3)));
 	}
 	else if(response == "ERRDEV")

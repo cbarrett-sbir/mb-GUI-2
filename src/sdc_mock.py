@@ -1,8 +1,8 @@
 import serial
 import time
 
-#cntrlr = serial.Serial('COM5', 19200, timeout=None)
-cntrlr = serial.Serial('/dev/tty.usbmodem93491801', 19200, timeout=None)
+cntrlr = serial.Serial('COM5', 19200, timeout=None)
+#cntrlr = serial.Serial('/dev/tty.usbmodem93491801', 19200, timeout=None)
 setPoint = 0.0
 readyWindow = 0.1
 address = "192.168.200.101"

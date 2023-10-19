@@ -187,9 +187,9 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 			drawLocked();
 			blackbody.setPoint = targetPoint;
 
-			// send the updated set-point over serial
-			Serial.print("DA ");
-			Serial.println(blackbody.setPoint);
+			// send the updated set-point over Serial5
+			Serial5.print("DA ");
+			Serial5.println(blackbody.setPoint);
 		}
 
 		locked = !locked; // toggle
@@ -211,7 +211,7 @@ void Blackbody_GUI::updateHomePageState(const ButtonState buttonState, const But
 	{
 		if (prevButtonState == nonePressed)
 		{
-			Serial.println("MERRDEV");
+			Serial5.println("MERRDEV");
 			drawErrorScreen();
 			currPage = errorPage;
 		}
@@ -664,8 +664,8 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		{
 			break;
 		}
-		Serial.print("ADDR= ");
-		Serial.println(prospectiveIpAddress.getAddress().c_str());
+		Serial5.print("ADDR= ");
+		Serial5.println(prospectiveIpAddress.getAddress().c_str());
 		break;
 	}
 
@@ -679,7 +679,6 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 
 	if (currPage == addressAdjustPage)
 	{	
-		Serial.println("EQUAL");
 		if (prospectiveIpAddress == blackbody.address)
 		{
 			tft.setTextColor(TFT_BLACK, TFT_WHITE);
@@ -837,8 +836,8 @@ void Blackbody_GUI::updateWindowAdjustPageState(ButtonState buttonState, ButtonS
 		{
 			break;
 		}
-		Serial.print("L ");
-		Serial.println(prospectiveReadyWindow);
+		Serial5.print("L ");
+		Serial5.println(prospectiveReadyWindow);
 	}
 	default: {}
 	}
@@ -884,7 +883,7 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 		tft.drawString("DEVICE:", 160, 30, 4);
 		tft.setTextColor(TFT_RED, TFT_WHITE);
 		tft.drawString(blackbody.errorDevice.c_str(), 270, 30, 4);
-		Serial.println(("MERRSTR " + blackbody.errorDevice).c_str());
+		Serial5.println(("MERRSTR " + blackbody.errorDevice).c_str());
 		currErrorDevice = blackbody.errorDevice;
 		blackbody.errorDevice = "";
 	}
@@ -918,9 +917,9 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 		case nextPressed:
 		if (prevButtonState == nonePressed && !ERROR_CLEARED)
 		{
-			Serial.println(("ERRCLR " + currErrorDevice).c_str());
+			Serial5.println(("ERRCLR " + currErrorDevice).c_str());
 			ERROR_CLEARED = true;
-			Serial.println("MERRDEV");
+			Serial5.println("MERRDEV");
 			tft.fillRect(15, 80, 290, 84, TFT_WHITE);
 		}
 		break;

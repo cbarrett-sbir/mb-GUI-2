@@ -59,7 +59,7 @@ void loop()
 	GUI.prevStatus = GUI.blackbody.status;
 
 	// check for response from blackbody SDC
-	if (Serial.available()) // changed from Serial5 to Serial
+	if (Serial5.available()) // changed from Serial5 to Serial
 							// to test with other screen.
 							// 6 locations in main.cpp,
 							// 1 in serial_methods -c.b
@@ -67,20 +67,26 @@ void loop()
 		readSerial(buffer, GUI.blackbody);
 	}
 
+	while (!Serial.available())
+	{
+
+	}
+	Serial.read();
+	Serial.print(".\n");
 	// every 1s request the source plate
 	// temperature and BB status over UART
 	if (millis() - prevTime > 250)
 	{
 		if (GUI.currPage == configPage || GUI.currPage == addressAdjustPage || GUI.currPage == windowAdjustPage)
 		{
-			Serial.println("ML");
-			Serial.println("MADDR");
+			Serial5.println("ML");
+			Serial5.println("MADDR");
 		}
 		if (GUI.currPage == homePage)
 		{
-			Serial.println("M2");
+			Serial5.println("M2");
 		}
-		Serial.println("MS");
+		Serial5.println("MS");
 		prevTime = millis();
 	}
 
