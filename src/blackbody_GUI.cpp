@@ -284,7 +284,9 @@ void Blackbody_GUI::updateConfigPageState(ButtonState buttonState, ButtonState p
 		{
 			break;
 		}
-		blackbody.ipMode= !blackbody.ipMode;
+		blackbody.ipMode = !blackbody.ipMode;
+		Serial5.print("DHCP ");
+		Serial5.println(std::to_string(blackbody.ipMode).c_str());
 
 		drawIPMode(blackbody.ipMode, 130, 60);
 		if (blackbody.ipMode)

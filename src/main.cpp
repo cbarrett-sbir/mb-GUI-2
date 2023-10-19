@@ -1,7 +1,7 @@
 /*******************************************************
 PROGRAM NAME - MB-GUI
-
-AUTHOR - C. BARRETT, 2023/04/24
+ 
+AUTHOR - C.BARRETT, 2023/04/24
 
 USAGE - Control temperature and settings of SBIR's
 low-cost blackbody product via a touchscreen GUI.
