@@ -664,7 +664,7 @@ void Blackbody_GUI::updateAddressAdjustPageState(ButtonState buttonState, Button
 		{
 			break;
 		}
-		Serial5.print("ADDR= ");
+		Serial5.print("SYSIP ");
 		Serial5.println(prospectiveIpAddress.getAddress().c_str());
 		break;
 	}
@@ -900,11 +900,12 @@ void Blackbody_GUI::updateErrorPageState(ButtonState buttonState, ButtonState pr
 	if (blackbody.status == 0 && prevStatus != 0)
 	{
 		tft.drawSmoothRoundRect(180, 165, 6, 5, 120, 60, TFT_LIGHTGREY);
+		tft.fillRect(160, 30, tft.textWidth("DEVICE: 999", 4), 20, TFT_WHITE);
 		tft.fillRect(15, 80, 290, 84, TFT_WHITE);
 		tft.fillRect(15, 164, 30, 20, TFT_WHITE);
 		tft.setTextColor(TFT_LIGHTGREY, TFT_WHITE);
 		tft.setTextDatum(ML_DATUM);
-		tft.setTextPadding(tft.textWidth("CLEAR"));
+		tft.setTextPadding(tft.textWidth("CLEAR", 4));
 		tft.drawString("CLEAR", 200, 198, 4);
 		tft.setTextDatum(MC_DATUM);
 		tft.setTextColor(TFT_BLACK, TFT_WHITE);
@@ -1022,7 +1023,14 @@ void Blackbody_GUI::drawSetPoint(float number, unsigned decimal_places, uint16_t
 	tft.setTextPadding(tft.textWidth("11.11", 7));
 	tft.setTextDatum(MR_DATUM); // always right aligned
 	tft.setTextColor(fgColor, bgColor, true);
-	tft.drawFloat(number, decimal_places, xPos, yPos, 7); // last argument (7) indicates font # 7 which is "7-seg digits"
+	if (is_equal(number, -1000.000000, 0.01))
+	{
+		tft.drawNumber(-999, xPos, yPos, 7);
+	}
+	else
+	{
+		tft.drawFloat(number, decimal_places, xPos, yPos, 7); // last argument (7) indicates font # 7 which is "7-seg digits"
+	}
 }
 
 void Blackbody_GUI::initDisplayGraphics()

@@ -67,12 +67,6 @@ void loop()
 		readSerial(buffer, GUI.blackbody);
 	}
 
-	while (!Serial.available())
-	{
-
-	}
-	Serial.read();
-	Serial.print(".\n");
 	// every 1s request the source plate
 	// temperature and BB status over UART
 	if (millis() - prevTime > 250)
@@ -80,11 +74,12 @@ void loop()
 		if (GUI.currPage == configPage || GUI.currPage == addressAdjustPage || GUI.currPage == windowAdjustPage)
 		{
 			Serial5.println("ML");
-			Serial5.println("MADDR");
+			Serial5.println("MCURRIP");
 		}
 		if (GUI.currPage == homePage)
 		{
 			Serial5.println("M2");
+			Serial5.println("MDA");
 		}
 		Serial5.println("MS");
 		prevTime = millis();
@@ -143,9 +138,15 @@ void loop()
 		}
 
 		// finally, update sourcePlateTemp and setPoint on screen
-		GUI.drawSetPoint(GUI.targetPoint, 1, GUI.targetPointColor, TFT_WHITE, 310, 125);
-		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, 2, TFT_BLACK, TFT_WHITE,
-						 10 + GUI.tft.textWidth("111.1", 7), 50);
+		if (GUI.locked)
+		{
+			GUI.drawSetPoint(GUI.blackbody.setPoint, 1, GUI.targetPointColor, TFT_WHITE, 310, 125);
+		}
+		else
+		{
+			GUI.drawSetPoint(GUI.targetPoint, 1, GUI.targetPointColor, TFT_WHITE, 310, 125);
+		}
+		GUI.drawSetPoint(GUI.blackbody.sourcePlateTemp, 2, TFT_BLACK, TFT_WHITE, 10 + GUI.tft.textWidth("111.1", 7), 50);
 		break;
 
 	/***************************************************************************************
